@@ -680,7 +680,9 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
         .getElementById('autopilot-launch-panel')
         ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       toast.info(
-        'Deposit USDC to your Hyperliquid account, the balance check updates automatically.'
+        language === 'zh'
+          ? '请向 Hyperliquid 账户充值 USDC，余额检查会自动更新。'
+          : 'Deposit USDC to your Hyperliquid account, the balance check updates automatically.'
       )
     } else {
       return
@@ -689,7 +691,15 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('setup')
     setSearchParams(nextParams, { replace: true })
-  }, [allExchanges, allModels, searchParams, setSearchParams, supportedModels, token, user])
+  }, [
+    allExchanges,
+    allModels,
+    searchParams,
+    setSearchParams,
+    supportedModels,
+    token,
+    user,
+  ])
 
   const refreshLaunchState = async () => {
     await Promise.all([loadConfigs(), mutateTraders()])
@@ -726,12 +736,13 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
               <h1 className="text-2xl md:text-3xl font-bold font-mono tracking-tight text-nofx-text flex items-center gap-3 uppercase">
                 {t('aiTraders', language)}
                 <span className="text-xs font-mono font-normal px-2 py-0.5 rounded bg-nofx-gold/10 text-nofx-gold border border-nofx-gold/20 tracking-wider">
-                  {traders?.length || 0} ACTIVE_NODES
+                  {traders?.length || 0}{' '}
+                  {language === 'zh' ? '个交易员' : 'ACTIVE_NODES'}
                 </span>
               </h1>
               <p className="text-xs font-mono text-nofx-text-muted uppercase tracking-widest mt-1 ml-1 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-nofx-success animate-pulse"></span>
-                SYSTEM_READY
+                {language === 'zh' ? '系统已就绪' : 'SYSTEM_READY'}
               </p>
             </div>
           </div>
@@ -743,7 +754,7 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
             >
               <div className="flex items-center gap-2">
                 <Plus className="w-3 h-3" />
-                <span>MODELS_CONFIG</span>
+                <span>{language === 'zh' ? '模型配置' : 'MODELS_CONFIG'}</span>
               </div>
             </button>
 
@@ -753,7 +764,9 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
             >
               <div className="flex items-center gap-2">
                 <Plus className="w-3 h-3" />
-                <span>EXCHANGE_KEYS</span>
+                <span>
+                  {language === 'zh' ? '交易所配置' : 'EXCHANGE_KEYS'}
+                </span>
               </div>
             </button>
 
@@ -763,7 +776,9 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
             >
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-3 h-3" />
-                <span>TELEGRAM_BOT</span>
+                <span>
+                  {language === 'zh' ? 'Telegram 机器人' : 'TELEGRAM_BOT'}
+                </span>
               </div>
             </button>
 

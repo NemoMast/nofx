@@ -71,10 +71,11 @@ const HYPERLIQUID_BUILDER_ADDRESS = '0x891dc6f05ad47a3c1a05da55e7a7517971faaf0d'
 // this exact string when approving the builder during wallet connect.
 const HYPERLIQUID_BUILDER_MAX_FEE = '0.05%'
 
-function copy(text: string, label: string) {
+function copy(text: string, label: string, language: string) {
   navigator.clipboard?.writeText(text).then(
-    () => toast.success(`${label} copied`),
-    () => toast.error('Copy failed')
+    () =>
+      toast.success(language === 'zh' ? `${label}已复制` : `${label} copied`),
+    () => toast.error(language === 'zh' ? '复制失败' : 'Copy failed')
   )
 }
 
@@ -148,66 +149,60 @@ export function HyperliquidWalletConnect({
     useState<ServerReadyProof | null>(null)
   const text = useMemo(
     () => ({
-      title: language === 'zh' ? 'Hyperliquid Wallet' : 'Hyperliquid Wallet',
-      connect:
-        language === 'zh' ? 'Connect Hyperliquid' : 'Connect Hyperliquid',
-      connected: language === 'zh' ? 'Connected' : 'Connected',
-      mainWallet:
-        language === 'zh' ? 'Connect your wallet' : 'Connect your wallet',
+      title: language === 'zh' ? 'Hyperliquid 钱包' : 'Hyperliquid Wallet',
+      connect: language === 'zh' ? '连接 Hyperliquid' : 'Connect Hyperliquid',
+      connected: language === 'zh' ? '已连接' : 'Connected',
+      mainWallet: language === 'zh' ? '连接钱包' : 'Connect your wallet',
       generateAgent:
         language === 'zh'
-          ? 'Create a trading key for NOFX'
+          ? '为 NOFX 创建交易密钥'
           : 'Create a trading key for NOFX',
       approveAgent:
         language === 'zh'
-          ? 'Approve it in your wallet (trade-only, cannot withdraw)'
+          ? '在钱包中确认授权（仅可交易，不可提现）'
           : 'Approve it in your wallet (trade-only, cannot withdraw)',
       approveBuilder:
         language === 'zh'
-          ? 'Approve the small per-trade builder fee'
+          ? '确认每笔交易的构建者费用'
           : 'Approve the small per-trade builder fee',
-      save: language === 'zh' ? 'Save to NOFX — done' : 'Save to NOFX — done',
+      save: language === 'zh' ? '保存到 NOFX，完成设置' : 'Save to NOFX — done',
       done:
         language === 'zh'
-          ? 'All set — trading authorized'
+          ? '设置完成，已授权交易'
           : 'All set — trading authorized',
-      balance:
-        language === 'zh' ? 'Hyperliquid balance' : 'Hyperliquid balance',
-      withdrawable: language === 'zh' ? 'Withdrawable' : 'Withdrawable',
-      equity: language === 'zh' ? 'Equity' : 'Equity',
-      marginUsed: language === 'zh' ? 'Margin used' : 'Margin used',
-      unrealizedPnl: language === 'zh' ? 'Unrealized PnL' : 'Unrealized PnL',
-      refresh: language === 'zh' ? 'Refresh' : 'Refresh',
+      balance: language === 'zh' ? 'Hyperliquid 余额' : 'Hyperliquid balance',
+      withdrawable: language === 'zh' ? '可提现' : 'Withdrawable',
+      equity: language === 'zh' ? '账户净值' : 'Equity',
+      marginUsed: language === 'zh' ? '已用保证金' : 'Margin used',
+      unrealizedPnl: language === 'zh' ? '未实现盈亏' : 'Unrealized PnL',
+      refresh: language === 'zh' ? '刷新' : 'Refresh',
       noCustody:
         language === 'zh'
-          ? 'Funds stay in your Hyperliquid account; NOFX only stores the authorized agent wallet.'
+          ? '资金保留在你的 Hyperliquid 账户中，NOFX 仅保存已授权的代理钱包。'
           : 'Funds stay in your Hyperliquid account; NOFX only stores the authorized agent wallet.',
       agentExpiry:
-        language === 'zh'
-          ? 'Agent authorization expires'
-          : 'Agent authorization expires',
-      agentExpired: language === 'zh' ? 'Expired' : 'Expired',
+        language === 'zh' ? '代理授权到期时间' : 'Agent authorization expires',
+      agentExpired: language === 'zh' ? '已过期' : 'Expired',
       agentNoAuth:
         language === 'zh'
-          ? 'No NOFX agent authorization found'
+          ? '未找到 NOFX 代理授权'
           : 'No NOFX agent authorization found',
       renewAgent:
         language === 'zh'
-          ? 'Renew agent authorization (+180d)'
+          ? '续期代理授权（180 天）'
           : 'Renew agent authorization (+180d)',
       renewHint:
         language === 'zh'
-          ? 'Hyperliquid forbids reusing an agent, so renewal creates a new agent approved for 180 days, then updates the stored key in NOFX (sign-in required).'
+          ? 'Hyperliquid 不允许重复使用同一代理，因此续期会创建有效期 180 天的新代理，并更新 NOFX 中保存的密钥（需要登录）。'
           : 'Hyperliquid forbids reusing an agent, so renewal creates a new agent approved for 180 days, then updates the stored key in NOFX (sign-in required).',
       noWalletTitle:
-        language === 'zh' ? 'No EVM wallet detected' : 'No EVM wallet detected',
+        language === 'zh' ? '未检测到 EVM 钱包' : 'No EVM wallet detected',
       noWalletDetail:
         language === 'zh'
-          ? 'Install Rabby or MetaMask, create or import a wallet, then return here to connect Hyperliquid.'
+          ? '请安装 Rabby 或 MetaMask，创建或导入钱包后，再回到此处连接 Hyperliquid。'
           : 'Install Rabby or MetaMask, create or import a wallet, then return here to connect Hyperliquid.',
-      installRabby: language === 'zh' ? 'Install Rabby' : 'Install Rabby',
-      installMetaMask:
-        language === 'zh' ? 'Install MetaMask' : 'Install MetaMask',
+      installRabby: language === 'zh' ? '安装 Rabby' : 'Install Rabby',
+      installMetaMask: language === 'zh' ? '安装 MetaMask' : 'Install MetaMask',
     }),
     [language]
   )
@@ -414,8 +409,12 @@ export function HyperliquidWalletConnect({
         setBalanceError('')
         setError(
           next
-            ? 'Wallet account changed. Review and restart authorization.'
-            : 'Wallet disconnected. Connect a wallet to continue.'
+            ? language === 'zh'
+              ? '钱包账号已变更，请核对后重新授权。'
+              : 'Wallet account changed. Review and restart authorization.'
+            : language === 'zh'
+              ? '钱包已断开，请重新连接后继续。'
+              : 'Wallet disconnected. Connect a wallet to continue.'
         )
       }
       provider.on?.('accountsChanged', handler)
@@ -536,7 +535,9 @@ export function HyperliquidWalletConnect({
       setBalanceError(
         err instanceof Error
           ? err.message
-          : 'Failed to load Hyperliquid balance'
+          : language === 'zh'
+            ? '无法加载 Hyperliquid 余额'
+            : 'Failed to load Hyperliquid balance'
       )
     } finally {
       setBalanceLoading(false)
@@ -623,30 +624,49 @@ export function HyperliquidWalletConnect({
     ? state.mainWallet
     : serverReadyProof?.wallet || undefined
   const connectionProgress = [
-    { label: 'Wallet', done: Boolean(state.mainWallet) },
     {
-      label: 'Authorize',
+      label: language === 'zh' ? '钱包' : 'Wallet',
+      done: Boolean(state.mainWallet),
+    },
+    {
+      label: language === 'zh' ? '授权' : 'Authorize',
       done: Boolean(agentApprovedReady && builderReady),
     },
-    { label: 'Ready', done: complete },
+    { label: language === 'zh' ? '已就绪' : 'Ready', done: complete },
   ]
   const currentPrompt = !state.mainWallet
-    ? 'Connect your wallet to begin'
+    ? language === 'zh'
+      ? '请先连接钱包'
+      : 'Connect your wallet to begin'
     : !agentReady
-      ? 'Prepare secure trading access'
+      ? language === 'zh'
+        ? '准备安全交易授权'
+        : 'Prepare secure trading access'
       : !agentApprovedReady
-        ? 'Approve trade-only access · 1 of 2'
+        ? language === 'zh'
+          ? '确认交易权限 · 第 1/2 步'
+          : 'Approve trade-only access · 1 of 2'
         : !builderReady
-          ? 'Finish authorization · 2 of 2'
+          ? language === 'zh'
+            ? '完成授权 · 第 2/2 步'
+            : 'Finish authorization · 2 of 2'
           : !complete
-            ? 'Verify the saved connection'
-            : 'Hyperliquid is ready'
+            ? language === 'zh'
+              ? '验证已保存的连接'
+              : 'Verify the saved connection'
+            : language === 'zh'
+              ? 'Hyperliquid 已就绪'
+              : 'Hyperliquid is ready'
 
   async function connectWallet() {
     setError('')
     const expectedWallet = serverReadyProof?.wallet || state.mainWallet
     if (walletProviders.length > 0 && !selectedWalletProvider) {
-      setError('Choose the wallet extension you want to connect.')
+      setError(
+        language === 'zh'
+          ? '请选择要连接的钱包插件。'
+          : 'Choose the wallet extension you want to connect.'
+      )
       return
     }
     const provider =
@@ -655,7 +675,7 @@ export function HyperliquidWalletConnect({
     if (!provider) {
       setError(
         language === 'zh'
-          ? 'No EVM wallet detected. Install MetaMask, Rabby, OKX or Coinbase Wallet.'
+          ? '未检测到 EVM 钱包，请安装 MetaMask、Rabby、OKX 或 Coinbase Wallet。'
           : 'No EVM wallet detected. Install MetaMask, Rabby, OKX or Coinbase Wallet.'
       )
       return
@@ -667,7 +687,10 @@ export function HyperliquidWalletConnect({
         Array.isArray(accounts) && typeof accounts[0] === 'string'
           ? accounts[0]
           : ''
-      if (!first) throw new Error('Wallet returned no account')
+      if (!first)
+        throw new Error(
+          language === 'zh' ? '钱包未返回账号' : 'Wallet returned no account'
+        )
       const normalized = normalizeAddress(first)
       if (
         serverReadyProof?.wallet &&
@@ -720,10 +743,15 @@ export function HyperliquidWalletConnect({
         })
       }
     } catch (err) {
-      const message = getWalletErrorMessage(err, 'Wallet connection failed')
+      const message = getWalletErrorMessage(
+        err,
+        language === 'zh' ? '钱包连接失败' : 'Wallet connection failed'
+      )
       setError(
         /at least one account|no accounts?|account is required/i.test(message)
-          ? 'No account is available in this wallet. Create or import an account in the selected wallet, then try again.'
+          ? language === 'zh'
+            ? '此钱包没有可用账号，请先在所选钱包中创建或导入账号，然后重试。'
+            : 'No account is available in this wallet. Create or import an account in the selected wallet, then try again.'
           : message
       )
     } finally {
@@ -745,10 +773,18 @@ export function HyperliquidWalletConnect({
         builderApproved: false,
         savedExchangeId: undefined,
       }))
-      toast.success('NOFX agent wallet generated')
+      toast.success(
+        language === 'zh'
+          ? 'NOFX 代理钱包已生成'
+          : 'NOFX agent wallet generated'
+      )
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to generate agent wallet'
+        err instanceof Error
+          ? err.message
+          : language === 'zh'
+            ? '生成代理钱包失败'
+            : 'Failed to generate agent wallet'
       )
     } finally {
       setBusy(false)
@@ -764,7 +800,10 @@ export function HyperliquidWalletConnect({
     const provider =
       walletProviderRef.current ||
       (await getWalletProviderForAddress(expectedWallet))
-    if (!provider || !expectedWallet) throw new Error('Wallet is not connected')
+    if (!provider || !expectedWallet)
+      throw new Error(
+        language === 'zh' ? '钱包未连接' : 'Wallet is not connected'
+      )
     walletProviderRef.current = provider
     assertCurrentWallet(expectedWallet)
     const { action: signedAction, signature } = await signHyperliquidUserAction(
@@ -789,7 +828,9 @@ export function HyperliquidWalletConnect({
       normalizeAddress(expectedWallet)
     ) {
       throw new Error(
-        'Wallet account changed. Review and restart authorization.'
+        language === 'zh'
+          ? '钱包账号已变更，请核对后重新授权。'
+          : 'Wallet account changed. Review and restart authorization.'
       )
     }
   }
@@ -799,7 +840,9 @@ export function HyperliquidWalletConnect({
       await onSaved?.()
     } catch {
       toast.error(
-        'Connection saved. Refresh the page to update dashboard data.'
+        language === 'zh'
+          ? '连接已保存，刷新页面即可更新看板数据。'
+          : 'Connection saved. Refresh the page to update dashboard data.'
       )
     }
   }
@@ -835,10 +878,19 @@ export function HyperliquidWalletConnect({
           ? { ...prev, agentApproved: true, savedExchangeId: undefined }
           : prev
       )
-      toast.success('Hyperliquid agent approved')
+      toast.success(
+        language === 'zh'
+          ? 'Hyperliquid 代理已授权'
+          : 'Hyperliquid agent approved'
+      )
       void refreshAgentInfo()
     } catch (err) {
-      setError(getWalletErrorMessage(err, 'Agent approval failed'))
+      setError(
+        getWalletErrorMessage(
+          err,
+          language === 'zh' ? '代理授权失败' : 'Agent approval failed'
+        )
+      )
     } finally {
       setBusy(false)
     }
@@ -848,7 +900,9 @@ export function HyperliquidWalletConnect({
     setError('')
     if (!isLoggedIn) {
       setError(
-        'Renewal requires signing in: Hyperliquid forbids reusing the same agent, so renewal creates a new agent and updates the stored key.'
+        language === 'zh'
+          ? '续期需要先登录。Hyperliquid 不允许重复使用同一代理，因此续期将创建新代理并更新已保存的密钥。'
+          : 'Renewal requires signing in: Hyperliquid forbids reusing the same agent, so renewal creates a new agent and updates the stored key.'
       )
       return
     }
@@ -882,8 +936,12 @@ export function HyperliquidWalletConnect({
       if (!existing) {
         throw new Error(
           eligible.length > 1
-            ? 'Multiple enabled Hyperliquid configs match this wallet. Select the exact saved connection before renewing.'
-            : 'No matching enabled NOFX config was found. Save the connection before renewing its agent.'
+            ? language === 'zh'
+              ? '此钱包匹配多个已启用的 Hyperliquid 配置，请先选择要续期的连接。'
+              : 'Multiple enabled Hyperliquid configs match this wallet. Select the exact saved connection before renewing.'
+            : language === 'zh'
+              ? '未找到匹配的已启用 NOFX 配置，请先保存连接，再续期代理授权。'
+              : 'No matching enabled NOFX config was found. Save the connection before renewing its agent.'
         )
       }
       const wallet = await api.generateWallet()
@@ -953,7 +1011,11 @@ export function HyperliquidWalletConnect({
             }
           : prev
       )
-      toast.success('Agent renewed (new agent, valid 180 days)')
+      toast.success(
+        language === 'zh'
+          ? '代理已续期（新代理有效期为 180 天）'
+          : 'Agent renewed (new agent, valid 180 days)'
+      )
       await refreshAgentInfo(
         walletSnapshot,
         newAgentAddress,
@@ -961,7 +1023,12 @@ export function HyperliquidWalletConnect({
         existing.id
       )
     } catch (err) {
-      setError(getWalletErrorMessage(err, 'Agent renewal failed'))
+      setError(
+        getWalletErrorMessage(
+          err,
+          language === 'zh' ? '代理续期失败' : 'Agent renewal failed'
+        )
+      )
     } finally {
       setBusy(false)
     }
@@ -1044,7 +1111,9 @@ export function HyperliquidWalletConnect({
         createdExchangeId || state.savedExchangeId
       )
       await refreshAfterSave()
-      toast.success('Trading authorization finalized')
+      toast.success(
+        language === 'zh' ? '交易授权已完成' : 'Trading authorization finalized'
+      )
     } catch (err) {
       if (approvalComplete) {
         setState((prev) =>
@@ -1057,7 +1126,12 @@ export function HyperliquidWalletConnect({
       setError(
         approvalComplete
           ? `Wallet authorization succeeded, but NOFX could not save the connection. Use “Save connection” to retry. ${err instanceof Error ? err.message : ''}`
-          : getWalletErrorMessage(err, 'Trading authorization failed')
+          : getWalletErrorMessage(
+              err,
+              language === 'zh'
+                ? '交易授权失败'
+                : 'Trading authorization failed'
+            )
       )
     } finally {
       setBusy(false)
@@ -1067,7 +1141,11 @@ export function HyperliquidWalletConnect({
   async function saveExchange() {
     setError('')
     if (!isLoggedIn) {
-      setError('Please sign in before saving the agent wallet for trading.')
+      setError(
+        language === 'zh'
+          ? '请先登录，再保存用于交易的代理钱包。'
+          : 'Please sign in before saving the agent wallet for trading.'
+      )
       return
     }
     const walletSnapshot = state.mainWallet
@@ -1089,7 +1167,9 @@ export function HyperliquidWalletConnect({
           : undefined
       if (!state.savedExchangeId && eligible.length > 1) {
         throw new Error(
-          'Multiple enabled Hyperliquid configs match this wallet. Select the exact connection before saving.'
+          language === 'zh'
+            ? '此钱包匹配多个已启用的 Hyperliquid 配置，请先选择要保存的连接。'
+            : 'Multiple enabled Hyperliquid configs match this wallet. Select the exact connection before saving.'
         )
       }
       assertCurrentWallet(walletSnapshot)
@@ -1122,8 +1202,12 @@ export function HyperliquidWalletConnect({
         )
         toast.success(
           state.agentPrivateKey
-            ? 'Hyperliquid account updated in NOFX'
-            : 'Existing Hyperliquid account authorization updated'
+            ? language === 'zh'
+              ? 'NOFX 中的 Hyperliquid 账户已更新'
+              : 'Hyperliquid account updated in NOFX'
+            : language === 'zh'
+              ? '已有 Hyperliquid 账户授权已更新'
+              : 'Existing Hyperliquid account authorization updated'
         )
         await refreshAgentInfo(
           walletSnapshot,
@@ -1136,7 +1220,9 @@ export function HyperliquidWalletConnect({
       }
       if (!state.agentPrivateKey) {
         throw new Error(
-          'Generate and authorize a new agent wallet before saving'
+          language === 'zh'
+            ? '请先生成并授权新的代理钱包，然后保存'
+            : 'Generate and authorize a new agent wallet before saving'
         )
       }
       const result = await api.createExchangeEncrypted({
@@ -1160,7 +1246,11 @@ export function HyperliquidWalletConnect({
             }
           : prev
       )
-      toast.success('Hyperliquid account saved to NOFX')
+      toast.success(
+        language === 'zh'
+          ? 'Hyperliquid 账户已保存到 NOFX'
+          : 'Hyperliquid account saved to NOFX'
+      )
       await refreshAgentInfo(
         walletSnapshot,
         state.agentAddress,
@@ -1169,7 +1259,14 @@ export function HyperliquidWalletConnect({
       )
       await refreshAfterSave()
     } catch (err) {
-      setError(getWalletErrorMessage(err, 'Failed to save Hyperliquid account'))
+      setError(
+        getWalletErrorMessage(
+          err,
+          language === 'zh'
+            ? '保存 Hyperliquid 账户失败'
+            : 'Failed to save Hyperliquid account'
+        )
+      )
     } finally {
       setBusy(false)
     }
@@ -1221,7 +1318,9 @@ export function HyperliquidWalletConnect({
         >
           <div className="flex items-start justify-between gap-4 border-b border-[rgba(26,24,19,0.14)] p-4 sm:p-5">
             <div className="min-w-0">
-              <h2 className="font-bold text-nofx-text">Connect Hyperliquid</h2>
+              <h2 className="font-bold text-nofx-text">
+                {language === 'zh' ? '连接 Hyperliquid' : 'Connect Hyperliquid'}
+              </h2>
               <p className="mt-1 text-xs leading-5 text-nofx-text-muted">
                 {currentPrompt}
               </p>
@@ -1240,7 +1339,9 @@ export function HyperliquidWalletConnect({
           <div className="space-y-4 p-4 sm:p-5">
             <div
               className="grid grid-cols-3 gap-2"
-              aria-label="Connection progress"
+              aria-label={
+                language === 'zh' ? '连接进度' : 'Connection progress'
+              }
             >
               {connectionProgress.map((step, index) => (
                 <div key={step.label} className="min-w-0 text-center">
@@ -1268,13 +1369,14 @@ export function HyperliquidWalletConnect({
                 <Shield className="mt-0.5 h-4 w-4 shrink-0 text-nofx-success" />
                 <div>
                   <p className="text-xs font-semibold text-nofx-text">
-                    NOFX receives trade-only access; it can never withdraw your
-                    funds.
+                    {language === 'zh'
+                      ? 'NOFX 仅获得交易权限，不能提取你的资金。'
+                      : 'NOFX receives trade-only access; it can never withdraw your funds.'}
                   </p>
                   <p className="mt-1 text-[11px] leading-5 text-nofx-text-muted">
-                    Two wallet approvals: authorize the NOFX Agent, then approve
-                    a maximum 0.05% builder fee. Your main wallet key never
-                    leaves your wallet.
+                    {language === 'zh'
+                      ? '需要两次钱包授权：授权 NOFX 代理，并确认最高 0.05% 的构建者费用。主钱包私钥不会离开你的钱包。'
+                      : 'Two wallet approvals: authorize the NOFX Agent, then approve a maximum 0.05% builder fee. Your main wallet key never leaves your wallet.'}
                   </p>
                 </div>
               </div>
@@ -1284,18 +1386,21 @@ export function HyperliquidWalletConnect({
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3 text-xs">
                   <span className="font-semibold text-nofx-text">
-                    Choose wallet
+                    {language === 'zh' ? '选择钱包' : 'Choose wallet'}
                   </span>
                   {serverReadyProof?.wallet && (
                     <span className="text-nofx-text-muted">
-                      Expected {shortAddress(serverReadyProof.wallet)}
+                      {language === 'zh' ? '预期地址' : 'Expected'}
+                      {shortAddress(serverReadyProof.wallet)}
                     </span>
                   )}
                 </div>
                 <div
                   className="grid grid-cols-2 gap-2"
                   role="group"
-                  aria-label="Wallet extension"
+                  aria-label={
+                    language === 'zh' ? '钱包插件' : 'Wallet extension'
+                  }
                 >
                   {walletProviders.map((provider, index) => {
                     const selected = selectedWalletProvider === provider
@@ -1372,14 +1477,18 @@ export function HyperliquidWalletConnect({
                   <ActionButton
                     busy={busy}
                     onClick={connectWallet}
-                    label="Connect wallet"
+                    label={language === 'zh' ? '连接钱包' : 'Connect wallet'}
                   />
                 )}
                 {state.mainWallet && !agentReady && (
                   <ActionButton
                     busy={busy}
                     onClick={generateAgentWallet}
-                    label="Prepare secure access"
+                    label={
+                      language === 'zh'
+                        ? '准备安全授权'
+                        : 'Prepare secure access'
+                    }
                   />
                 )}
                 {agentReady && !agentApprovedReady && (
@@ -1392,8 +1501,12 @@ export function HyperliquidWalletConnect({
                     }
                     label={
                       state.reusedSavedExchange || state.savedExchangeId
-                        ? 'Re-authorize trade-only access'
-                        : 'Approve trade-only access'
+                        ? language === 'zh'
+                          ? '重新授权交易权限'
+                          : 'Re-authorize trade-only access'
+                        : language === 'zh'
+                          ? '确认交易权限'
+                          : 'Approve trade-only access'
                     }
                   />
                 )}
@@ -1401,14 +1514,18 @@ export function HyperliquidWalletConnect({
                   <ActionButton
                     busy={busy}
                     onClick={approveBuilderFee}
-                    label="Approve fee & finish"
+                    label={
+                      language === 'zh'
+                        ? '确认费用并完成'
+                        : 'Approve fee & finish'
+                    }
                   />
                 )}
                 {builderReady && !state.savedExchangeId && (
                   <ActionButton
                     busy={busy}
                     onClick={saveExchange}
-                    label="Save connection"
+                    label={language === 'zh' ? '保存连接' : 'Save connection'}
                   />
                 )}
               </div>
@@ -1419,10 +1536,18 @@ export function HyperliquidWalletConnect({
             >
               {state.mainWallet && (
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-nofx-text-muted">Main</span>
+                  <span className="text-nofx-text-muted">
+                    {language === 'zh' ? '主钱包' : 'Main'}
+                  </span>
                   <button
                     type="button"
-                    onClick={() => copy(state.mainWallet!, 'Main wallet')}
+                    onClick={() =>
+                      copy(
+                        state.mainWallet!,
+                        language === 'zh' ? '主钱包' : 'Main wallet',
+                        language
+                      )
+                    }
                     className="font-mono text-nofx-text hover:text-nofx-gold flex items-center gap-1"
                   >
                     {shortAddress(state.mainWallet)}{' '}
@@ -1432,10 +1557,18 @@ export function HyperliquidWalletConnect({
               )}
               {complete && state.agentAddress && (
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-nofx-text-muted">Agent</span>
+                  <span className="text-nofx-text-muted">
+                    {language === 'zh' ? '代理钱包' : 'Agent'}
+                  </span>
                   <button
                     type="button"
-                    onClick={() => copy(state.agentAddress!, 'Agent wallet')}
+                    onClick={() =>
+                      copy(
+                        state.agentAddress!,
+                        language === 'zh' ? '代理钱包' : 'Agent wallet',
+                        language
+                      )
+                    }
                     className="font-mono text-nofx-text hover:text-nofx-gold flex items-center gap-1"
                   >
                     {shortAddress(state.agentAddress)}{' '}
@@ -1444,9 +1577,13 @@ export function HyperliquidWalletConnect({
                 </div>
               )}
               <div className="flex items-center justify-between gap-3">
-                <span className="text-nofx-text-muted">Network</span>
+                <span className="text-nofx-text-muted">
+                  {language === 'zh' ? '网络' : 'Network'}
+                </span>
                 <span className="font-mono text-nofx-text">
-                  Hyperliquid Mainnet
+                  {language === 'zh'
+                    ? 'Hyperliquid 主网'
+                    : 'Hyperliquid Mainnet'}
                 </span>
               </div>
               {complete && state.mainWallet && (
@@ -1456,7 +1593,7 @@ export function HyperliquidWalletConnect({
                   </span>
                   {agentInfoLoading && !agentInfo ? (
                     <span className="font-mono text-nofx-text-muted">
-                      Loading…
+                      {language === 'zh' ? '加载中…' : 'Loading…'}
                     </span>
                   ) : agentInfo ? (
                     (() => {
@@ -1540,7 +1677,9 @@ export function HyperliquidWalletConnect({
                       </div>
                       <div className="mt-1 font-mono text-sm font-bold text-nofx-success">
                         {balanceLoading && !account
-                          ? 'Loading…'
+                          ? language === 'zh'
+                            ? '加载中…'
+                            : 'Loading…'
                           : `${formatUSDC(account?.withdrawable)} USDC`}
                       </div>
                     </div>
@@ -1548,7 +1687,9 @@ export function HyperliquidWalletConnect({
                       <div className="text-nofx-text-muted">{text.equity}</div>
                       <div className="mt-1 font-mono text-sm font-bold text-nofx-text">
                         {balanceLoading && !account
-                          ? 'Loading…'
+                          ? language === 'zh'
+                            ? '加载中…'
+                            : 'Loading…'
                           : `${formatUSDC(account?.accountValue)} USDC`}
                       </div>
                     </div>
@@ -1587,7 +1728,7 @@ export function HyperliquidWalletConnect({
                     className="w-full flex items-center justify-center gap-2 rounded-xl border border-nofx-gold/30 bg-nofx-gold/10 px-4 py-3 text-sm font-bold text-nofx-gold transition hover:bg-nofx-gold/20"
                   >
                     {language === 'zh'
-                      ? 'Re-authorize trading'
+                      ? '重新授权交易'
                       : 'Re-authorize trading'}
                   </button>
                 </>
@@ -1601,14 +1742,15 @@ export function HyperliquidWalletConnect({
                 rel="noopener noreferrer"
                 className="text-xs text-nofx-text-muted hover:text-nofx-gold flex items-center gap-1"
               >
-                Open Hyperliquid <ExternalLink className="w-3 h-3" />
+                {language === 'zh' ? '打开 Hyperliquid' : 'Open Hyperliquid'}
+                <ExternalLink className="w-3 h-3" />
               </a>
               <button
                 type="button"
                 onClick={resetFlow}
                 className="text-xs text-nofx-text-muted hover:text-nofx-danger"
               >
-                Reset
+                {language === 'zh' ? '重置' : 'Reset'}
               </button>
             </div>
           </div>

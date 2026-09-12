@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react'
 import type { Language } from '../i18n/translations'
 
 interface LanguageContextType {
@@ -11,16 +17,32 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 )
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  // The product UI is English-only. Normalize legacy browser state left by the
-  // removed language switcher so an old `language=zh|id` value cannot revive a
-  // partially translated, layout-breaking interface.
-  const [language] = useState<Language>(() => {
-    localStorage.setItem('language', 'en')
-    return 'en'
+  const [language, setLanguage] = useState<Language>(() => {
+    try {
+      // The old UI forced `language=en`; only trust an explicit new preference.
+      const saved = localStorage.getItem('nofx-ui-language')
+      return saved === 'en' ? 'en' : 'zh'
+    } catch {
+      return 'zh'
+    }
   })
 
-  const handleSetLanguage = (_lang: Language) => {
-    localStorage.setItem('language', 'en')
+  useEffect(() => {
+    document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'
+    document.title =
+      language === 'zh'
+        ? 'NOFX - AI 自动交易看板'
+        : 'NOFX - AI Auto Trading Dashboard'
+    try {
+      localStorage.setItem('nofx-ui-language', language)
+      localStorage.setItem('language', language)
+    } catch {
+      // Language selection still works when storage is blocked by the browser.
+    }
+  }, [language])
+
+  const handleSetLanguage = (lang: Language) => {
+    setLanguage(lang === 'en' ? 'en' : 'zh')
   }
 
   return (

@@ -16,6 +16,7 @@ import { LoginPage } from '../components/auth/LoginPage'
 import { RegisterPage } from '../components/auth/RegisterPage'
 import { ResetPasswordPage } from '../components/auth/ResetPasswordPage'
 import { SetupPage } from '../components/modals/SetupPage'
+import { LanguageSwitcher } from '../components/common/LanguageSwitcher'
 import { CompetitionPage } from '../components/trader/CompetitionPage'
 import { AITradersPage } from '../components/trader/AITradersPage'
 import { TraderLaunchGuestPage } from '../components/trader/TraderLaunchGuestPage'
@@ -382,6 +383,7 @@ function DashboardRoute() {
 }
 
 export function AppRoutes() {
+  const location = useLocation()
   const { user, token, isLoading } = useAuth()
   const { config: systemConfig, loading: configLoading } = useSystemConfig()
   const isAuthenticated = !!user && !!token
@@ -391,12 +393,25 @@ export function AppRoutes() {
   }
 
   if (systemConfig && !systemConfig.initialized && !user) {
-    return <SetupPage />
+    return (
+      <>
+        <LanguageSwitcher />
+        <SetupPage />
+      </>
+    )
   }
 
   return (
     <>
       <LegacyHashRedirect />
+      {(
+        [
+          ROUTES.login,
+          ROUTES.register,
+          ROUTES.resetPassword,
+          ROUTES.setup,
+        ] as string[]
+      ).includes(location.pathname) && <LanguageSwitcher />}
       <Routes>
         <Route path={ROUTES.home} element={<LandingPage />} />
         <Route path={ROUTES.login} element={<LoginPage />} />

@@ -1,3 +1,4 @@
+import { useUiLanguage } from './uiLanguage'
 import { useMemo } from 'react'
 import type { FlowMarketItem } from '../../lib/api/data'
 
@@ -7,7 +8,11 @@ interface FlowMarketsProps {
 }
 
 function baseLabel(raw: string): string {
-  return raw.toUpperCase().replace(/^XYZ:/, '').replace(/[-_]/g, '').replace(/(USDT|USDC|USD)$/, '')
+  return raw
+    .toUpperCase()
+    .replace(/^XYZ:/, '')
+    .replace(/[-_]/g, '')
+    .replace(/(USDT|USDC|USD)$/, '')
 }
 function num(s: string): number {
   const n = parseFloat(s)
@@ -33,10 +38,14 @@ const GRID = '64px 96px minmax(120px, 1fr) 80px 96px'
  * latest price. Sorted by net inflow descending (the upstream ordering).
  */
 export function FlowMarkets({ items, window = '1h' }: FlowMarketsProps) {
+  const ui = useUiLanguage()
   const win = window.toUpperCase()
   const rows = useMemo(() => {
     if (!items || items.length === 0) return []
-    const max = items.reduce((m, it) => Math.max(m, Math.abs(num(it.netFlow))), 1)
+    const max = items.reduce(
+      (m, it) => Math.max(m, Math.abs(num(it.netFlow))),
+      1
+    )
     return items.slice(0, 10).map((it) => {
       const buy = num(it.buyNotional)
       const sell = num(it.sellNotional)
@@ -56,7 +65,11 @@ export function FlowMarkets({ items, window = '1h' }: FlowMarketsProps) {
   }, [items])
 
   if (rows.length === 0) {
-    return <div className="tm-sc" style={{ padding: '12px 0' }}>No net-flow data (claw402 payment required).</div>
+    return (
+      <div className="tm-sc" style={{ padding: '12px 0' }}>
+        {ui('No net-flow data (claw402 payment required).')}
+      </div>
+    )
   }
 
   return (
@@ -74,11 +87,13 @@ export function FlowMarkets({ items, window = '1h' }: FlowMarketsProps) {
           fontSize: 9,
         }}
       >
-        <span>SYMBOL</span>
-        <span style={{ textAlign: 'right' }}>{win} NET</span>
-        <span>BUY/SELL</span>
-        <span style={{ textAlign: 'right' }}>TRADES</span>
-        <span style={{ textAlign: 'right' }}>PRICE</span>
+        <span>{ui('SYMBOL')}</span>
+        <span style={{ textAlign: 'right' }}>
+          {win} {ui('NET')}
+        </span>
+        <span>{ui('BUY/SELL')}</span>
+        <span style={{ textAlign: 'right' }}>{ui('TRADES')}</span>
+        <span style={{ textAlign: 'right' }}>{ui('PRICE')}</span>
       </div>
 
       {/* rows */}
@@ -95,10 +110,15 @@ export function FlowMarkets({ items, window = '1h' }: FlowMarketsProps) {
           }}
         >
           {/* symbol */}
-          <span style={{ fontWeight: 600, color: 'var(--tm-ink)' }}>{r.label}</span>
+          <span style={{ fontWeight: 600, color: 'var(--tm-ink)' }}>
+            {r.label}
+          </span>
 
           {/* net inflow figure (green = net buying / red = net selling) */}
-          <span className={r.net >= 0 ? 'tm-up' : 'tm-dn'} style={{ textAlign: 'right', fontWeight: 600 }}>
+          <span
+            className={r.net >= 0 ? 'tm-up' : 'tm-dn'}
+            style={{ textAlign: 'right', fontWeight: 600 }}
+          >
             {r.netStr}
           </span>
 
@@ -107,7 +127,10 @@ export function FlowMarkets({ items, window = '1h' }: FlowMarketsProps) {
               Green grows from the LEFT (buy), red fills the REST (sell). */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div
-              title={`buy ${r.buyPct.toFixed(0)}% / sell ${(100 - r.buyPct).toFixed(0)}%`}
+              title={ui('buy {buy}% / sell {sell}%', {
+                buy: r.buyPct.toFixed(0),
+                sell: (100 - r.buyPct).toFixed(0),
+              })}
               style={{
                 position: 'relative',
                 height: 8,
@@ -116,12 +139,29 @@ export function FlowMarkets({ items, window = '1h' }: FlowMarketsProps) {
                 background: 'var(--tm-hair)',
               }}
             >
-              <div style={{ position: 'absolute', inset: 0, width: `${Math.max(4, r.widthPct)}%`, display: 'flex' }}>
-                <div style={{ width: `${r.buyPct}%`, background: 'var(--tm-up)' }} />
-                <div style={{ width: `${100 - r.buyPct}%`, background: 'var(--tm-dn)' }} />
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: `${Math.max(4, r.widthPct)}%`,
+                  display: 'flex',
+                }}
+              >
+                <div
+                  style={{ width: `${r.buyPct}%`, background: 'var(--tm-up)' }}
+                />
+                <div
+                  style={{
+                    width: `${100 - r.buyPct}%`,
+                    background: 'var(--tm-dn)',
+                  }}
+                />
               </div>
             </div>
-            <span className="tm-sc" style={{ fontSize: 9, minWidth: 30, textAlign: 'right' }}>
+            <span
+              className="tm-sc"
+              style={{ fontSize: 9, minWidth: 30, textAlign: 'right' }}
+            >
               {r.buyPct.toFixed(0)}%
             </span>
           </div>
@@ -139,9 +179,15 @@ export function FlowMarkets({ items, window = '1h' }: FlowMarketsProps) {
       ))}
 
       {/* legend — explains every column */}
-      <div className="tm-sc" style={{ marginTop: 8, fontSize: 9, lineHeight: 1.6 }}>
-        net inflow = {win} net buying · <span className="tm-up">green</span>/<span className="tm-dn">red</span> = buy/sell split
-        {' · '}trades = count · last price = last traded price
+      <div
+        className="tm-sc"
+        style={{ marginTop: 8, fontSize: 9, lineHeight: 1.6 }}
+      >
+        {ui('net inflow =')} {win} {ui('net buying ·')}{' '}
+        <span className="tm-up">{ui('green')}</span>/
+        <span className="tm-dn">{ui('red')}</span> {ui('= buy/sell split')}
+        {' · '}
+        {ui('trades = count · last price = last traded price')}
       </div>
     </div>
   )

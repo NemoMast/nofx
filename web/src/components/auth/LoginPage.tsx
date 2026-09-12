@@ -63,7 +63,6 @@ export function LoginPage() {
 
   return (
     <DeepVoidBackground disableAnimation>
-
       {/* Self-contained centering grid — works regardless of parent flex setup */}
       <main className="flex-1 grid lg:grid-cols-2">
         {/* ───────── LEFT: brand panel (desktop only) ───────── */}
@@ -85,39 +84,36 @@ export function LoginPage() {
             <div className="inline-flex items-center gap-2 mb-7 px-3 py-1 rounded-full border border-nofx-success/25 bg-nofx-success/[0.06]">
               <div className="w-1.5 h-1.5 rounded-full bg-nofx-success animate-pulse" />
               <span className="text-[10.5px] font-mono tracking-[0.18em] text-nofx-success uppercase">
-                Terminal Online
+                {language === 'zh' ? '终端在线' : 'Terminal Online'}
               </span>
             </div>
             <h2 className="text-4xl xl:text-5xl font-bold tracking-tight text-nofx-text leading-[1.05]">
               {language === 'zh' ? (
                 <>
-                  AI-Powered<br />
-                  <span className="text-nofx-gold">
-                    Multi-Market Trading Terminal
-                  </span>
+                  AI 驱动
+                  <br />
+                  <span className="text-nofx-gold">多市场交易终端</span>
                 </>
               ) : language === 'id' ? (
                 <>
-                  Terminal Trading<br />
-                  <span className="text-nofx-gold">
-                    Multi-Pasar AI
-                  </span>
+                  Terminal Trading
+                  <br />
+                  <span className="text-nofx-gold">Multi-Pasar AI</span>
                 </>
               ) : (
                 <>
-                  AI-Powered<br />
-                  <span className="text-nofx-gold">
-                    Trading Terminal
-                  </span>
+                  AI-Powered
+                  <br />
+                  <span className="text-nofx-gold">Trading Terminal</span>
                 </>
               )}
             </h2>
             <p className="mt-5 text-nofx-text-muted text-base leading-relaxed max-w-md">
               {language === 'zh'
-                ? 'Plug into 10+ exchanges including Hyperliquid, OKX, Aster, and 7 LLM models. Deploy 24/7 automated strategies with natural language.'
+                ? '连接 Hyperliquid、OKX、Aster 等十余家交易所和七种大模型，通过自然语言部署全天候自动交易策略。'
                 : language === 'id'
-                ? 'Hubungkan ke 10+ bursa termasuk Hyperliquid, OKX, Aster dan 7 model LLM. Terapkan strategi otomatis 24/7 dengan bahasa alami.'
-                : 'Plug into 10+ exchanges including Hyperliquid, OKX, Aster, and 7 LLM models. Deploy 24/7 automated strategies with natural language.'}
+                  ? 'Hubungkan ke 10+ bursa termasuk Hyperliquid, OKX, Aster dan 7 model LLM. Terapkan strategi otomatis 24/7 dengan bahasa alami.'
+                  : 'Plug into 10+ exchanges including Hyperliquid, OKX, Aster, and 7 LLM models. Deploy 24/7 automated strategies with natural language.'}
             </p>
           </div>
 
@@ -127,30 +123,30 @@ export function LoginPage() {
               value="10+"
               label={
                 language === 'zh'
-                  ? 'Exchanges'
+                  ? '交易所'
                   : language === 'id'
-                  ? 'Bursa'
-                  : 'Exchanges'
+                    ? 'Bursa'
+                    : 'Exchanges'
               }
             />
             <Stat
               value="7"
               label={
                 language === 'zh'
-                  ? 'AI Models'
+                  ? 'AI 模型'
                   : language === 'id'
-                  ? 'Model AI'
-                  : 'AI Models'
+                    ? 'Model AI'
+                    : 'AI Models'
               }
             />
             <Stat
               value="24/7"
               label={
                 language === 'zh'
-                  ? 'Always On'
+                  ? '全天候运行'
                   : language === 'id'
-                  ? 'Sepanjang Waktu'
-                  : 'Always On'
+                    ? 'Sepanjang Waktu'
+                    : 'Always On'
               }
             />
           </div>
@@ -174,10 +170,10 @@ export function LoginPage() {
               </h1>
               <p className="mt-1.5 text-sm text-nofx-text-muted">
                 {language === 'zh'
-                  ? 'Continue with your email'
+                  ? '使用邮箱登录'
                   : language === 'id'
-                  ? 'Lanjutkan dengan email Anda'
-                  : 'Continue with your email'}
+                    ? 'Lanjutkan dengan email Anda'
+                    : 'Continue with your email'}
               </p>
             </div>
 
@@ -228,7 +224,15 @@ export function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-nofx-text-muted hover:text-nofx-text transition-colors"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={
+                      showPassword
+                        ? language === 'zh'
+                          ? '隐藏密码'
+                          : 'Hide password'
+                        : language === 'zh'
+                          ? '显示密码'
+                          : 'Show password'
+                    }
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -252,7 +256,8 @@ export function LoginPage() {
                 {loading ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    {t('loggingIn', language) || 'Signing in...'}
+                    {t('loggingIn', language) ||
+                      (language === 'zh' ? '正在登录…' : 'Signing in...')}
                   </>
                 ) : (
                   <>

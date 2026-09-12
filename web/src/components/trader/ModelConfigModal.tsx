@@ -54,7 +54,9 @@ export function ModelConfigModal({
   // model name, has_api_key); the template from supportedModels only describes
   // the provider. When editing, the configured entry must win — both can share
   // the same id (e.g. "claw402").
-  const configuredModel = configuredModels?.find((m) => m.id === selectedModelId)
+  const configuredModel = configuredModels?.find(
+    (m) => m.id === selectedModelId
+  )
   const templateModel = allModels?.find((m) => m.id === selectedModelId)
   const selectedModel = editingModelId
     ? configuredModel || templateModel
@@ -425,7 +427,8 @@ function Claw402ConfigForm({
   // Editing with a stored key: allow saving (e.g. switching model) without
   // re-entering the private key, as long as the field is left blank.
   const canSubmit =
-    isKeyValid || (Boolean(editingModelId) && Boolean(hasExistingKey) && !apiKey)
+    isKeyValid ||
+    (Boolean(editingModelId) && Boolean(hasExistingKey) && !apiKey)
 
   // Truncate address for display
 
@@ -468,10 +471,14 @@ function Claw402ConfigForm({
           setClaw402Status(data.claw402_status || 'unknown')
           setKeyError('')
         } else {
-          setKeyError(data.error || 'Invalid key')
+          setKeyError(
+            data.error || (language === 'zh' ? '密钥无效' : 'Invalid key')
+          )
         }
       } catch {
-        setKeyError('Validation request failed')
+        setKeyError(
+          language === 'zh' ? '验证请求失败' : 'Validation request failed'
+        )
       } finally {
         setValidating(false)
       }
@@ -503,7 +510,11 @@ function Claw402ConfigForm({
               : t('modelConfig.claw402Unreachable', language),
         })
       } else {
-        setTestResult({ status: 'error', message: data.error || 'Invalid key' })
+        setTestResult({
+          status: 'error',
+          message:
+            data.error || (language === 'zh' ? '密钥无效' : 'Invalid key'),
+        })
       }
     } catch {
       setTestResult({
@@ -546,20 +557,18 @@ function Claw402ConfigForm({
           {t('modelConfig.allModelsClaw', language)}
         </div>
         <div className="flex items-center justify-center gap-3 mt-3 flex-wrap">
-          {['GPT', 'Claude', 'DeepSeek', 'GLM'].map(
-            (name) => (
-              <span
-                key={name}
-                className="text-[11px] px-2 py-0.5 rounded-full"
-                style={{
-                  background: 'rgba(26,24,19,0.06)',
-                  color: '#8A8478',
-                }}
-              >
-                {name}
-              </span>
-            )
-          )}
+          {['GPT', 'Claude', 'DeepSeek', 'GLM'].map((name) => (
+            <span
+              key={name}
+              className="text-[11px] px-2 py-0.5 rounded-full"
+              style={{
+                background: 'rgba(26,24,19,0.06)',
+                color: '#8A8478',
+              }}
+            >
+              {name}
+            </span>
+          ))}
         </div>
       </div>
 
@@ -626,7 +635,7 @@ function Claw402ConfigForm({
                           border: '1px solid rgba(46, 139, 87, 0.22)',
                         }}
                       >
-                        NEW
+                        {language === 'zh' ? '新增' : 'NEW'}
                       </span>
                     ) : null}
                   </div>
@@ -640,7 +649,8 @@ function Claw402ConfigForm({
                     className="text-[10px] font-medium"
                     style={{ color: '#2E8B57' }}
                   >
-                    ${m.priceIn} in · ${m.priceOut} out /1M tok
+                    ${m.priceIn} in · ${m.priceOut}{' '}
+                    {language === 'zh' ? '输出 / 百万词元' : 'out /1M tok'}
                   </div>
                 </div>
                 {isSelected && (
@@ -750,7 +760,7 @@ function Claw402ConfigForm({
                   cursor: 'pointer',
                 }}
               >
-                {language === 'zh' ? '🔑 Create Wallet' : '🔑 Create Wallet'}
+                {language === 'zh' ? '创建钱包' : '🔑 Create Wallet'}
               </button>
             )}
           </div>
@@ -770,12 +780,12 @@ function Claw402ConfigForm({
               >
                 🚨{' '}
                 {language === 'zh'
-                  ? 'Important: Backup your private key NOW!'
+                  ? '重要：请立即备份私钥！'
                   : 'Important: Backup your private key NOW!'}
               </div>
               <div className="text-[11px] mb-2" style={{ color: '#D6433A' }}>
                 {language === 'zh'
-                  ? 'This is your wallet private key. If lost, it cannot be recovered and all assets will be permanently lost. Copy and save it securely.'
+                  ? '这是你的钱包私钥，丢失后无法恢复，钱包内资产也将无法找回。请复制并妥善保存。'
                   : 'This is your wallet private key. If lost, it cannot be recovered and all assets will be permanently lost. Copy and save it securely.'}
               </div>
               <div className="flex items-center gap-2 mb-2">
@@ -800,7 +810,11 @@ function Claw402ConfigForm({
                     cursor: 'pointer',
                   }}
                 >
-                  {copiedAddr ? '✅ Copied' : '📋 Copy Key'}
+                  {copiedAddr
+                    ? '✅ Copied'
+                    : language === 'zh'
+                      ? '复制密钥'
+                      : '📋 Copy Key'}
                 </button>
               </div>
               <div
@@ -810,19 +824,19 @@ function Claw402ConfigForm({
                 <div>
                   ✅{' '}
                   {language === 'zh'
-                    ? 'Save to a password manager (1Password / Bitwarden)'
+                    ? '保存到密码管理器（1Password / Bitwarden）'
                     : 'Save to a password manager (1Password / Bitwarden)'}
                 </div>
                 <div>
                   ✅{' '}
                   {language === 'zh'
-                    ? 'Or write it down and store it safely'
+                    ? '或抄写下来并妥善保管'
                     : 'Or write it down and store it safely'}
                 </div>
                 <div>
                   ❌{' '}
                   {language === 'zh'
-                    ? 'Do NOT screenshot or share with anyone'
+                    ? '请勿截图或分享给任何人'
                     : 'Do NOT screenshot or share with anyone'}
                 </div>
               </div>
@@ -907,7 +921,7 @@ function Claw402ConfigForm({
                   >
                     ⚠️{' '}
                     {language === 'zh'
-                      ? 'Please confirm this is your wallet address (verify in MetaMask)'
+                      ? '请确认这是你的钱包地址（可在 MetaMask 中核对）'
                       : 'Please confirm this is your wallet address (verify in MetaMask)'}
                   </div>
                 </div>
@@ -932,10 +946,10 @@ function Claw402ConfigForm({
                     >
                       {showDeposit
                         ? language === 'zh'
-                          ? 'Hide'
+                          ? '隐藏'
                           : 'Hide'
                         : language === 'zh'
-                          ? '💳 Deposit'
+                          ? '充值'
                           : '💳 Deposit'}
                     </button>
                   </div>
@@ -954,7 +968,7 @@ function Claw402ConfigForm({
                     >
                       💳{' '}
                       {language === 'zh'
-                        ? 'Deposit USDC (Base Chain)'
+                        ? '充值 USDC（Base 链）'
                         : 'Deposit USDC (Base Chain)'}
                     </div>
                     <div className="flex gap-3 items-start mb-3">
@@ -970,7 +984,7 @@ function Claw402ConfigForm({
                           style={{ color: '#8A8478' }}
                         >
                           {language === 'zh'
-                            ? 'Scan QR or copy address to transfer'
+                            ? '扫码或复制地址转账'
                             : 'Scan QR or copy address to transfer'}
                         </div>
                         <code
@@ -994,7 +1008,11 @@ function Claw402ConfigForm({
                             cursor: 'pointer',
                           }}
                         >
-                          {copiedAddr ? '✅ Copied' : '📋 Copy Address'}
+                          {copiedAddr
+                            ? '✅ Copied'
+                            : language === 'zh'
+                              ? '复制地址'
+                              : '📋 Copy Address'}
                         </button>
                       </div>
                     </div>
@@ -1005,17 +1023,17 @@ function Claw402ConfigForm({
                       <div>
                         📱{' '}
                         {language === 'zh'
-                          ? 'Scan QR with exchange app to transfer'
+                          ? '使用交易所应用扫码转账'
                           : 'Scan QR with exchange app to transfer'}
                       </div>
                       <div>
                         •{' '}
                         {language === 'zh'
-                          ? 'Choose Base network when withdrawing'
+                          ? '提币时请选择 Base 网络'
                           : 'Choose Base network when withdrawing'}
                       </div>
                       <div>
-                        • {language === 'zh' ? 'Or bridge: ' : 'Or bridge: '}
+                        • {language === 'zh' ? '或通过跨链桥：' : 'Or bridge: '}
                         <a
                           href="https://bridge.base.org"
                           target="_blank"
@@ -1029,7 +1047,7 @@ function Claw402ConfigForm({
                       <div>
                         •{' '}
                         {language === 'zh'
-                          ? 'Min $1 USDC to start'
+                          ? '至少充值 1 USDC 后即可开始'
                           : 'Min $1 USDC to start'}
                       </div>
                     </div>
@@ -1253,8 +1271,16 @@ function StandardProviderConfigForm({
             color: '#2E8B57',
           }}
         >
-          Current model key status:{' '}
-          {selectedModel.has_api_key ? 'API Key configured' : 'API Key not configured'}
+          {language === 'zh'
+            ? '当前模型密钥状态：'
+            : 'Current model key status:'}{' '}
+          {selectedModel.has_api_key
+            ? language === 'zh'
+              ? 'API 密钥已配置'
+              : 'API Key configured'
+            : language === 'zh'
+              ? '尚未配置 API 密钥'
+              : 'API Key not configured'}
         </div>
       )}
 
@@ -1277,7 +1303,7 @@ function StandardProviderConfigForm({
               d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
             />
           </svg>
-          {'API Key *'}
+          {language === 'zh' ? 'API 密钥 *' : 'API Key *'}
         </label>
         <input
           type="password"
@@ -1285,7 +1311,9 @@ function StandardProviderConfigForm({
           onChange={(e) => onApiKeyChange(e.target.value)}
           placeholder={
             editingModelId && selectedModel.has_api_key
-              ? 'Saved. Re-enter to replace.'
+              ? language === 'zh'
+                ? '已保存，重新输入可替换。'
+                : 'Saved. Re-enter to replace.'
               : t('enterAPIKey', language)
           }
           className="w-full px-4 py-3 rounded-xl"
@@ -1300,38 +1328,38 @@ function StandardProviderConfigForm({
 
       {/* Custom Base URL */}
       <div className="space-y-2">
-          <label
-            className="flex items-center gap-2 text-sm font-semibold"
-            style={{ color: '#1A1813' }}
+        <label
+          className="flex items-center gap-2 text-sm font-semibold"
+          style={{ color: '#1A1813' }}
+        >
+          <svg
+            className="w-4 h-4"
+            style={{ color: '#E0483B' }}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-4 h-4"
-              style={{ color: '#E0483B' }}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-              />
-            </svg>
-            {t('customBaseURL', language)}
-          </label>
-          <input
-            type="url"
-            value={baseUrl}
-            onChange={(e) => onBaseUrlChange(e.target.value)}
-            placeholder={t('customBaseURLPlaceholder', language)}
-            className="w-full px-4 py-3 rounded-xl"
-            style={{
-              background: '#F1ECE2',
-              border: '1px solid rgba(26,24,19,0.14)',
-              color: '#1A1813',
-            }}
-          />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+            />
+          </svg>
+          {t('customBaseURL', language)}
+        </label>
+        <input
+          type="url"
+          value={baseUrl}
+          onChange={(e) => onBaseUrlChange(e.target.value)}
+          placeholder={t('customBaseURLPlaceholder', language)}
+          className="w-full px-4 py-3 rounded-xl"
+          style={{
+            background: '#F1ECE2',
+            border: '1px solid rgba(26,24,19,0.14)',
+            color: '#1A1813',
+          }}
+        />
         <div className="text-xs" style={{ color: '#8A8478' }}>
           {t('leaveBlankForDefault', language)}
         </div>
@@ -1339,38 +1367,38 @@ function StandardProviderConfigForm({
 
       {/* Custom Model Name */}
       <div className="space-y-2">
-          <label
-            className="flex items-center gap-2 text-sm font-semibold"
-            style={{ color: '#1A1813' }}
+        <label
+          className="flex items-center gap-2 text-sm font-semibold"
+          style={{ color: '#1A1813' }}
+        >
+          <svg
+            className="w-4 h-4"
+            style={{ color: '#E0483B' }}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-4 h-4"
-              style={{ color: '#E0483B' }}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-              />
-            </svg>
-            {t('customModelName', language)}
-          </label>
-          <input
-            type="text"
-            value={modelName}
-            onChange={(e) => onModelNameChange(e.target.value)}
-            placeholder={t('customModelNamePlaceholder', language)}
-            className="w-full px-4 py-3 rounded-xl"
-            style={{
-              background: '#F1ECE2',
-              border: '1px solid rgba(26,24,19,0.14)',
-              color: '#1A1813',
-            }}
-          />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+            />
+          </svg>
+          {t('customModelName', language)}
+        </label>
+        <input
+          type="text"
+          value={modelName}
+          onChange={(e) => onModelNameChange(e.target.value)}
+          placeholder={t('customModelNamePlaceholder', language)}
+          className="w-full px-4 py-3 rounded-xl"
+          style={{
+            background: '#F1ECE2',
+            border: '1px solid rgba(26,24,19,0.14)',
+            color: '#1A1813',
+          }}
+        />
         <div className="text-xs" style={{ color: '#8A8478' }}>
           {t('leaveBlankForDefaultModel', language)}
         </div>
@@ -1414,8 +1442,7 @@ function StandardProviderConfigForm({
           type="submit"
           disabled={
             !selectedModel ||
-            (!apiKey.trim() &&
-              !(editingModelId && selectedModel.has_api_key))
+            (!apiKey.trim() && !(editingModelId && selectedModel.has_api_key))
           }
           className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ background: '#E0483B', color: '#fff' }}

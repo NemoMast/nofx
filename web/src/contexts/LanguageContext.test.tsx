@@ -1,38 +1,76 @@
-import { render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it } from 'vitest'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  cleanup,
+} from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LanguageProvider, useLanguage } from './LanguageContext'
-import { Header } from '../components/common/Header'
+import { LanguageSwitcher } from '../components/common/LanguageSwitcher'
 
 function LanguageProbe() {
   const { language } = useLanguage()
-  return <div>{language}</div>
+  return <output>{language}</output>
 }
 
-describe('English-only language policy', () => {
+function renderLanguage() {
+  return render(
+    <LanguageProvider>
+      <LanguageProbe />
+      <LanguageSwitcher />
+    </LanguageProvider>
+  )
+}
+
+describe('Chinese and English interface preferences', () => {
   beforeEach(() => localStorage.clear())
-
-  it('ignores stale Chinese browser state and normalizes storage to English', async () => {
-    localStorage.setItem('language', 'zh')
-
-    render(
-      <LanguageProvider>
-        <LanguageProbe />
-      </LanguageProvider>
-    )
-
-    expect(screen.getByText('en')).toBeTruthy()
-    await waitFor(() => expect(localStorage.getItem('language')).toBe('en'))
+  afterEach(() => {
+    cleanup()
+    vi.restoreAllMocks()
   })
 
-  it('does not render a language switcher anywhere in the English-only header', () => {
-    render(
-      <LanguageProvider>
-        <Header simple />
-      </LanguageProvider>
-    )
+  it('defaults to Chinese even when the former English-only UI wrote legacy state', () => {
+    localStorage.setItem('language', 'en')
+    renderLanguage()
+    expect(screen.getByRole('status')).toHaveTextContent('zh')
+    expect(document.documentElement.lang).toBe('zh-CN')
+  })
 
-    expect(screen.queryByRole('button', { name: 'Chinese' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'EN' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'ID' })).toBeNull()
+  it('switches immediately, exposes selection and remembers English after remount', async () => {
+    const view = renderLanguage()
+    fireEvent.click(screen.getByRole('button', { name: 'EN' }))
+    expect(screen.getByRole('status')).toHaveTextContent('en')
+    expect(screen.getByRole('button', { name: 'EN' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    )
+    await waitFor(() =>
+      expect(localStorage.getItem('nofx-ui-language')).toBe('en')
+    )
+    expect(document.documentElement.lang).toBe('en')
+    view.unmount()
+    renderLanguage()
+    expect(screen.getByRole('status')).toHaveTextContent('en')
+    fireEvent.click(screen.getByRole('button', { name: '中文' }))
+    expect(screen.getByRole('status')).toHaveTextContent('zh')
+  })
+
+  it('falls back to Chinese when a saved preference is invalid', () => {
+    localStorage.setItem('nofx-ui-language', 'invalid')
+    renderLanguage()
+    expect(screen.getByRole('status')).toHaveTextContent('zh')
+  })
+
+  it('still switches when browser storage is unavailable', () => {
+    vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    renderLanguage()
+    fireEvent.click(screen.getByRole('button', { name: 'EN' }))
+    expect(screen.getByRole('status')).toHaveTextContent('en')
   })
 })

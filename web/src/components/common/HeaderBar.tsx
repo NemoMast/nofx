@@ -6,6 +6,7 @@ import { t, type Language } from '../../i18n/translations'
 import { OFFICIAL_LINKS } from '../../constants/branding'
 import { getCurrentPageForPath, ROUTES, type Page } from '../../router/paths'
 import { HyperliquidWalletConnect } from './HyperliquidWalletConnect'
+import { LanguageToggle } from './LanguageSwitcher'
 
 interface HeaderBarProps {
   onLoginClick?: () => void
@@ -25,6 +26,7 @@ export default function HeaderBar({
   isHomePage = false,
   currentPage,
   language = 'en' as Language,
+  onLanguageChange,
   user,
   onLogout,
   onPageChange,
@@ -105,7 +107,7 @@ export default function HeaderBar({
                     path: ROUTES.data,
                     label:
                       language === 'zh'
-                        ? 'Data'
+                        ? '行情'
                         : language === 'id'
                           ? 'Data'
                           : 'Data',
@@ -116,7 +118,7 @@ export default function HeaderBar({
                     path: ROUTES.strategyMarket,
                     label:
                       language === 'zh'
-                        ? 'Market'
+                        ? '市场'
                         : language === 'id'
                           ? 'Pasar'
                           : 'Market',
@@ -302,7 +304,7 @@ export default function HeaderBar({
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-[rgba(26,24,19,0.06)] text-nofx-text-muted hover:text-nofx-text"
                       >
                         <Settings className="w-3.5 h-3.5" />
-                        Settings
+                        {language === 'zh' ? '设置' : 'Settings'}
                       </button>
 
                       {onLogout && (
@@ -336,23 +338,42 @@ export default function HeaderBar({
               )
             )}
 
-            {/* Language switcher removed — the product UI is English-only. */}
+            {onLanguageChange && (
+              <LanguageToggle language={language} onChange={onLanguageChange} />
+            )}
           </div>
         </div>
 
-        {/* Mobile Menu Button */}
-        <motion.button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="shrink-0 text-nofx-text-muted hover:text-nofx-text lg:hidden"
-          aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'}
-          whileTap={{ scale: 0.9 }}
-        >
-          {mobileMenuOpen ? (
-            <X className="w-6 h-6" />
-          ) : (
-            <Menu className="w-6 h-6" />
+        <div className="flex shrink-0 items-center gap-2">
+          {onLanguageChange && (
+            <LanguageToggle
+              language={language}
+              onChange={onLanguageChange}
+              className="md:hidden"
+            />
           )}
-        </motion.button>
+          {/* Mobile Menu Button */}
+          <motion.button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="shrink-0 text-nofx-text-muted hover:text-nofx-text lg:hidden"
+            aria-label={
+              language === 'zh'
+                ? mobileMenuOpen
+                  ? '关闭导航'
+                  : '打开导航'
+                : mobileMenuOpen
+                  ? 'Close navigation'
+                  : 'Open navigation'
+            }
+            whileTap={{ scale: 0.9 }}
+          >
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
+          </motion.button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}
@@ -388,7 +409,7 @@ export default function HeaderBar({
                       path: ROUTES.data,
                       label:
                         language === 'zh'
-                          ? 'Data'
+                          ? '行情'
                           : language === 'id'
                             ? 'Data'
                             : 'Data',
@@ -399,7 +420,7 @@ export default function HeaderBar({
                       path: ROUTES.strategyMarket,
                       label:
                         language === 'zh'
-                          ? 'Market'
+                          ? '市场'
                           : language === 'id'
                             ? 'Pasar'
                             : 'Market',
@@ -477,7 +498,7 @@ export default function HeaderBar({
                         )}
                         {tab.requiresAuth && !isLoggedIn && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded border border-zinc-800 text-zinc-500 font-normal tracking-wide uppercase align-middle relative -top-1">
-                            LOGIN_REQ
+                            {language === 'zh' ? '需登录' : 'LOGIN_REQ'}
                           </span>
                         )}
                       </motion.button>
@@ -550,7 +571,7 @@ export default function HeaderBar({
                   ))}
                 </div>
 
-                {/* Account (language switcher removed — English-only UI) */}
+                {/* Account */}
                 <div className="grid grid-cols-1 gap-4">
                   {/* Auth Actions */}
                   {isLoggedIn && user ? (

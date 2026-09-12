@@ -1,3 +1,4 @@
+import { useUiLanguage } from '../terminal/uiLanguage'
 import { useState } from 'react'
 import {
   LineChart,
@@ -37,11 +38,16 @@ interface EquityChartProps {
 }
 
 export function EquityChart({ traderId, embedded = false }: EquityChartProps) {
+  const ui = useUiLanguage()
   const { language } = useLanguage()
   const { user, token } = useAuth()
   const [displayMode, setDisplayMode] = useState<'dollar' | 'percent'>('dollar')
 
-  const { data: history, error, isLoading } = useSWR<EquityPoint[]>(
+  const {
+    data: history,
+    error,
+    isLoading,
+  } = useSWR<EquityPoint[]>(
     user && token && traderId ? `equity-history-${traderId}` : null,
     () => api.getEquityHistory(traderId, true),
     {
@@ -66,7 +72,10 @@ export function EquityChart({ traderId, embedded = false }: EquityChartProps) {
     return (
       <div className={embedded ? 'p-6' : 'binance-card p-6'}>
         {!embedded && (
-          <h3 className="text-lg font-semibold mb-6" style={{ color: '#1A1813' }}>
+          <h3
+            className="text-lg font-semibold mb-6"
+            style={{ color: '#1A1813' }}
+          >
             {t('accountEquityCurve', language)}
           </h3>
         )}
@@ -108,7 +117,10 @@ export function EquityChart({ traderId, embedded = false }: EquityChartProps) {
     return (
       <div className={embedded ? 'p-6' : 'binance-card p-6'}>
         {!embedded && (
-          <h3 className="text-lg font-semibold mb-6" style={{ color: '#1A1813' }}>
+          <h3
+            className="text-lg font-semibold mb-6"
+            style={{ color: '#1A1813' }}
+          >
             {t('accountEquityCurve', language)}
           </h3>
         )}
@@ -189,10 +201,14 @@ export function EquityChart({ traderId, embedded = false }: EquityChartProps) {
       return (
         <div
           className="rounded p-3 shadow-xl"
-          style={{ background: '#F7F4EC', border: '1px solid rgba(26, 24, 19, 0.14)' }}
+          style={{
+            background: '#F7F4EC',
+            border: '1px solid rgba(26, 24, 19, 0.14)',
+          }}
         >
           <div className="text-xs mb-1" style={{ color: '#8A8478' }}>
-            Cycle #{data.cycle != null ? data.cycle : '—'}
+            {ui('Cycle #')}
+            {data.cycle != null ? data.cycle : '—'}
           </div>
           <div className="font-bold mono" style={{ color: '#1A1813' }}>
             {data.raw_equity.toFixed(2)} USDT
@@ -212,7 +228,11 @@ export function EquityChart({ traderId, embedded = false }: EquityChartProps) {
   }
 
   return (
-    <div className={embedded ? 'p-3 sm:p-5' : 'binance-card p-3 sm:p-5 animate-fade-in'}>
+    <div
+      className={
+        embedded ? 'p-3 sm:p-5' : 'binance-card p-3 sm:p-5 animate-fade-in'
+      }
+    >
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div className="flex-1">
@@ -274,7 +294,10 @@ export function EquityChart({ traderId, embedded = false }: EquityChartProps) {
         {/* Display Mode Toggle */}
         <div
           className="flex gap-0.5 sm:gap-1 rounded p-0.5 sm:p-1 self-start sm:self-auto"
-          style={{ background: '#E8E2D5', border: '1px solid rgba(26, 24, 19, 0.14)' }}
+          style={{
+            background: '#E8E2D5',
+            border: '1px solid rgba(26, 24, 19, 0.14)',
+          }}
         >
           <button
             onClick={() => setDisplayMode('dollar')}
@@ -343,7 +366,10 @@ export function EquityChart({ traderId, embedded = false }: EquityChartProps) {
                 <stop offset="95%" stopColor="#E0483B" stopOpacity={0.2} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(26, 24, 19, 0.10)" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(26, 24, 19, 0.10)"
+            />
             <XAxis
               dataKey="time"
               stroke="#6B6557"

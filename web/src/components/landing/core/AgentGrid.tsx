@@ -2,17 +2,21 @@ import { motion } from 'framer-motion'
 import { TrendingUp, Layers, Zap, Hexagon, Crosshair } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
+import { useLanguage } from '../../../contexts/LanguageContext'
 
-const traderPresets = [
+const getTraderPresets = (language: string) => [
   {
     name: 'ALPHA-1',
     // ... (rest of agents array remains, but I can't skip lines in replacement content easily without context. Wait, let's just replace the top section)
     // Actually, I'll use multi_replace for targeted cleanup.
-    class: 'US_STOCKS',
-    desc: 'Large-cap momentum and breakout trading.',
+    class: language === 'zh' ? '美股' : 'US_STOCKS',
+    desc:
+      language === 'zh'
+        ? '大盘股动量与突破交易。'
+        : 'Large-cap momentum and breakout trading.',
     apy: '142%',
     winRate: '68%',
-    risk: 'HIGH',
+    risk: language === 'zh' ? '高' : 'HIGH',
     color: 'text-nofx-gold',
     border: 'border-nofx-gold/50',
     bg_glow: 'shadow-sm',
@@ -20,11 +24,14 @@ const traderPresets = [
   },
   {
     name: 'BETA-X',
-    class: 'MACRO_FX',
-    desc: 'FX trend and macro regime allocation.',
+    class: language === 'zh' ? '宏观外汇' : 'MACRO_FX',
+    desc:
+      language === 'zh'
+        ? '外汇趋势与宏观周期配置。'
+        : 'FX trend and macro regime allocation.',
     apy: '89%',
     winRate: '55%',
-    risk: 'MED',
+    risk: language === 'zh' ? '中' : 'MED',
     color: 'text-nofx-accent',
     border: 'border-nofx-accent/30',
     bg_glow: 'shadow-sm',
@@ -32,11 +39,14 @@ const traderPresets = [
   },
   {
     name: 'GAMMA-RAY',
-    class: 'PRE_IPO',
-    desc: 'Private-market momentum basket engine.',
+    class: language === 'zh' ? '上市前市场' : 'PRE_IPO',
+    desc:
+      language === 'zh'
+        ? '上市前市场动量组合策略。'
+        : 'Private-market momentum basket engine.',
     apy: '24%',
     winRate: '99%',
-    risk: 'LOW',
+    risk: language === 'zh' ? '低' : 'LOW',
     color: 'text-nofx-text',
     border: 'border-nofx-gold/20',
     bg_glow: 'shadow-sm',
@@ -45,6 +55,8 @@ const traderPresets = [
 ]
 
 export default function AgentGrid() {
+  const { language } = useLanguage()
+  const traderPresets = getTraderPresets(language)
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -70,18 +82,20 @@ export default function AgentGrid() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-10 md:mb-16 gap-6">
           <div>
             <div className="flex items-center gap-2 text-nofx-gold font-mono text-xs mb-2 tracking-widest uppercase">
-              <Crosshair className="w-4 h-4" /> ASSET CLASS SELECT
+              <Crosshair className="w-4 h-4" />{' '}
+              {language === 'zh' ? '选择资产类别' : 'ASSET CLASS SELECT'}
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-nofx-text uppercase tracking-tighter">
-              PROFESSIONAL{' '}
+              {language === 'zh' ? '专业' : 'PROFESSIONAL'}{' '}
               <span className="text-nofx-gold">
-                TRADERS
+                {language === 'zh' ? '交易员' : 'TRADERS'}
               </span>
             </h2>
           </div>
           <div className="font-mono text-right text-xs text-nofx-text-muted max-w-xs">
-            CREATE TRADERS FOR US STOCKS, COMMODITIES, FX AND PRE-IPO MARKETS.
-            DESCRIBE THE STRATEGY IN ONE SENTENCE.
+            {language === 'zh'
+              ? '为美股、大宗商品、外汇和上市前市场创建交易员，用一句话描述策略。'
+              : 'CREATE TRADERS FOR US STOCKS, COMMODITIES, FX AND PRE-IPO MARKETS. DESCRIBE THE STRATEGY IN ONE SENTENCE.'}
           </div>
         </div>
 
@@ -109,7 +123,7 @@ export default function AgentGrid() {
                     </div>
                     <div className="text-right">
                       <div className="text-[10px] font-mono text-nofx-text-muted uppercase">
-                        Class
+                        {language === 'zh' ? '资产类别' : 'Class'}
                       </div>
                       <div
                         className={`font-bold font-mono tracking-wider ${preset.color}`}
@@ -131,7 +145,7 @@ export default function AgentGrid() {
                   <div className="grid grid-cols-3 gap-px bg-[rgba(26,24,19,0.14)] border border-[rgba(26,24,19,0.14)] rounded overflow-hidden mb-8">
                     <div className="bg-nofx-bg-deeper p-3 text-center group-hover:bg-nofx-bg transition-colors">
                       <div className="text-[10px] text-nofx-text-muted uppercase font-mono mb-1">
-                        APY
+                        {language === 'zh' ? '年化收益' : 'APY'}
                       </div>
                       <div className="text-nofx-success font-bold">
                         {preset.apy}
@@ -139,7 +153,7 @@ export default function AgentGrid() {
                     </div>
                     <div className="bg-nofx-bg-deeper p-3 text-center group-hover:bg-nofx-bg transition-colors">
                       <div className="text-[10px] text-nofx-text-muted uppercase font-mono mb-1">
-                        Win %
+                        {language === 'zh' ? '胜率' : 'Win %'}
                       </div>
                       <div className="text-nofx-text font-bold">
                         {preset.winRate}
@@ -147,7 +161,7 @@ export default function AgentGrid() {
                     </div>
                     <div className="bg-nofx-bg-deeper p-3 text-center group-hover:bg-nofx-bg transition-colors">
                       <div className="text-[10px] text-nofx-text-muted uppercase font-mono mb-1">
-                        Risk
+                        {language === 'zh' ? '风险' : 'Risk'}
                       </div>
                       <div className={`${preset.color} font-bold`}>
                         {preset.risk}
@@ -160,7 +174,8 @@ export default function AgentGrid() {
                     onClick={handleInitialize}
                     className={`w-full py-4 text-xs font-bold font-mono uppercase tracking-[0.2em] border border-[rgba(26,24,19,0.14)] hover:border-${preset.color === 'text-nofx-gold' ? 'nofx-gold' : 'nofx-text'} hover:bg-nofx-text/5 transition-all flex items-center justify-center gap-2 group-hover:text-nofx-text cursor-pointer text-nofx-text`}
                   >
-                    <span className={preset.color}>[</span> INITIALIZE{' '}
+                    <span className={preset.color}>[</span>{' '}
+                    {language === 'zh' ? '开始配置' : 'INITIALIZE'}{' '}
                     <span className={preset.color}>]</span>
                   </button>
                 </div>

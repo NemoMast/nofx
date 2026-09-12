@@ -1,3 +1,4 @@
+import { useUiLanguage } from '../components/terminal/uiLanguage'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import {
@@ -36,6 +37,7 @@ function configBadge(label: string, active: boolean) {
 }
 
 export function SettingsPage() {
+  const ui = useUiLanguage()
   const { user } = useAuth()
   const { language } = useLanguage()
   const [activeTab, setActiveTab] = useState<Tab>('account')
@@ -87,7 +89,7 @@ export function SettingsPage() {
       const response = await api.getExchangeAccountState()
       setExchangeStates(response.states || {})
     } catch {
-      toast.error('Failed to load exchange balances')
+      toast.error(ui('Failed to load exchange balances'))
     } finally {
       setExchangeStatesLoading(false)
     }
@@ -96,11 +98,13 @@ export function SettingsPage() {
   // Fetch data when tabs are visited
   useEffect(() => {
     if (activeTab === 'models') {
-      refreshModelConfigs().catch(() => toast.error('Failed to load AI models'))
+      refreshModelConfigs().catch(() =>
+        toast.error(ui('Failed to load AI models'))
+      )
     }
     if (activeTab === 'exchanges') {
       refreshExchangeConfigs().catch(() =>
-        toast.error('Failed to load exchanges')
+        toast.error(ui('Failed to load exchanges'))
       )
     }
   }, [activeTab])
@@ -108,7 +112,7 @@ export function SettingsPage() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters')
+      toast.error(ui('Password must be at least 8 characters'))
       return
     }
     setChangingPassword(true)
@@ -125,11 +129,11 @@ export function SettingsPage() {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error || 'Failed to update password')
       }
-      toast.success('Password updated successfully')
+      toast.success(ui('Password updated successfully'))
       setNewPassword('')
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : 'Failed to update password'
+        err instanceof Error ? err.message : ui('Failed to update password')
       )
     } finally {
       setChangingPassword(false)
@@ -147,7 +151,7 @@ export function SettingsPage() {
       const modelTemplate = supportedModels.find((m) => m.id === modelId)
       const modelToUpdate = existingModel || modelTemplate
       if (!modelToUpdate) {
-        toast.error('Model not found')
+        toast.error(ui('Model not found'))
         return
       }
 
@@ -191,12 +195,12 @@ export function SettingsPage() {
         ),
       }
       await api.updateModelConfigs(request)
-      toast.success('Model config saved')
+      toast.success(ui('Model config saved'))
       await refreshModelConfigs()
       setShowModelModal(false)
       setEditingModel(null)
     } catch {
-      toast.error('Failed to save model config')
+      toast.error(ui('Failed to save model config'))
     }
   }
 
@@ -230,9 +234,9 @@ export function SettingsPage() {
       await refreshModelConfigs()
       setShowModelModal(false)
       setEditingModel(null)
-      toast.success('Model config removed')
+      toast.success(ui('Model config removed'))
     } catch {
-      toast.error('Failed to remove model config')
+      toast.error(ui('Failed to remove model config'))
     }
   }
 
@@ -257,8 +261,10 @@ export function SettingsPage() {
       if (exchangeType === 'hyperliquid') {
         toast.error(
           language === 'zh'
-            ? 'Hyperliquid must be connected through wallet authorization, not manual keys.'
-            : 'Hyperliquid must be connected through wallet authorization, not manual keys.'
+            ? 'Hyperliquid 必须通过钱包授权连接，不能手动填写密钥。'
+            : ui(
+                'Hyperliquid must be connected through wallet authorization, not manual keys.'
+              )
         )
         return
       }
@@ -284,7 +290,7 @@ export function SettingsPage() {
           },
         }
         await api.updateExchangeConfigsEncrypted(request)
-        toast.success('Exchange config updated')
+        toast.success(ui('Exchange config updated'))
       } else {
         const createRequest = {
           exchange_type: exchangeType,
@@ -305,32 +311,32 @@ export function SettingsPage() {
           lighter_api_key_index: lighterApiKeyIndex || 0,
         }
         await api.createExchangeEncrypted(createRequest)
-        toast.success('Exchange account created')
+        toast.success(ui('Exchange account created'))
       }
       await refreshExchangeConfigs()
       setShowExchangeModal(false)
       setEditingExchange(null)
     } catch {
-      toast.error('Failed to save exchange config')
+      toast.error(ui('Failed to save exchange config'))
     }
   }
 
   const handleDeleteExchange = async (exchangeId: string) => {
     try {
       await api.deleteExchange(exchangeId)
-      toast.success('Exchange account deleted')
+      toast.success(ui('Exchange account deleted'))
       await refreshExchangeConfigs()
       setShowExchangeModal(false)
       setEditingExchange(null)
     } catch {
-      toast.error('Failed to delete exchange account')
+      toast.error(ui('Failed to delete exchange account'))
     }
   }
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'account', label: 'Account', icon: <User size={16} /> },
-    { key: 'models', label: 'AI Models', icon: <Cpu size={16} /> },
-    { key: 'exchanges', label: 'Exchanges', icon: <Building2 size={16} /> },
+    { key: 'account', label: ui('Account'), icon: <User size={16} /> },
+    { key: 'models', label: ui('AI Models'), icon: <Cpu size={16} /> },
+    { key: 'exchanges', label: ui('Exchanges'), icon: <Building2 size={16} /> },
     { key: 'telegram', label: 'Telegram', icon: <MessageCircle size={16} /> },
   ]
 
@@ -340,7 +346,9 @@ export function SettingsPage() {
       style={{ background: '#F1ECE2' }}
     >
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-xl font-bold text-nofx-text mb-6">Settings</h1>
+        <h1 className="text-xl font-bold text-nofx-text mb-6">
+          {ui('Settings')}
+        </h1>
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 bg-nofx-bg-lighter border border-[rgba(26,24,19,0.14)] rounded-xl p-1">
@@ -367,18 +375,22 @@ export function SettingsPage() {
           {activeTab === 'account' && (
             <div className="space-y-6">
               <div>
-                <p className="text-xs text-nofx-text-muted mb-1">Email</p>
-                <p className="text-sm text-nofx-text font-medium">{user?.email}</p>
+                <p className="text-xs text-nofx-text-muted mb-1">
+                  {ui('Email')}
+                </p>
+                <p className="text-sm text-nofx-text font-medium">
+                  {user?.email}
+                </p>
               </div>
 
               <div className="border-t border-[rgba(26,24,19,0.14)] pt-6">
                 <h3 className="text-sm font-semibold text-nofx-text mb-4">
-                  Change Password
+                  {ui('Change Password')}
                 </h3>
                 <form onSubmit={handleChangePassword} className="space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-nofx-text-muted mb-2">
-                      New Password
+                      {ui('New Password')}
                     </label>
                     <div className="relative">
                       <input
@@ -386,7 +398,7 @@ export function SettingsPage() {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         className="w-full bg-nofx-bg-deeper border border-[rgba(26,24,19,0.14)] rounded-xl px-4 py-3 pr-11 text-sm text-nofx-text placeholder-nofx-text-muted focus:outline-none focus:border-nofx-gold/60 focus:ring-1 focus:ring-nofx-gold/30 transition-all"
-                        placeholder="At least 8 characters"
+                        placeholder={ui('At least 8 characters')}
                         required
                       />
                       <button
@@ -407,7 +419,9 @@ export function SettingsPage() {
                     disabled={changingPassword || newPassword.length < 8}
                     className="w-full bg-nofx-gold hover:bg-nofx-gold-highlight active:scale-[0.98] text-nofx-bg font-semibold py-3 rounded-xl text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {changingPassword ? 'Updating...' : 'Update Password'}
+                    {changingPassword
+                      ? ui('Updating...')
+                      : ui('Update Password')}
                   </button>
                 </form>
               </div>
@@ -419,8 +433,9 @@ export function SettingsPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-nofx-text-muted">
-                  {configuredModels.length} model
-                  {configuredModels.length !== 1 ? 's' : ''} configured
+                  {language === 'zh'
+                    ? `已配置 ${configuredModels.length} 个模型`
+                    : `${configuredModels.length} model${configuredModels.length !== 1 ? 's' : ''} configured`}
                 </p>
                 <button
                   onClick={() => {
@@ -430,13 +445,13 @@ export function SettingsPage() {
                   className="flex items-center gap-1.5 text-xs font-medium bg-nofx-gold/10 hover:bg-nofx-gold/20 text-nofx-gold px-3 py-1.5 rounded-lg transition-colors"
                 >
                   <Plus size={14} />
-                  Add Model
+                  {ui('Add Model')}
                 </button>
               </div>
 
               {configuredModels.length === 0 ? (
                 <div className="text-center py-8 text-nofx-text-muted text-sm">
-                  No AI models configured yet
+                  {ui('No AI models configured yet')}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -461,12 +476,12 @@ export function SettingsPage() {
                             <p className="text-xs text-nofx-text-muted">
                               {model.provider}
                             </p>
-                            {configBadge('API Key', !!model.has_api_key)}
+                            {configBadge(ui('API Key'), !!model.has_api_key)}
                             {model.customModelName
-                              ? configBadge('Custom Model', true)
+                              ? configBadge(ui('Custom Model'), true)
                               : null}
                             {model.customApiUrl
-                              ? configBadge('Base URL', true)
+                              ? configBadge(ui('Base URL'), true)
                               : null}
                           </div>
                         </div>
@@ -475,7 +490,7 @@ export function SettingsPage() {
                         <span
                           className={`text-xs px-2 py-0.5 rounded-full ${model.enabled ? 'bg-nofx-success/10 text-nofx-success' : 'bg-nofx-bg-deeper text-nofx-text-muted'}`}
                         >
-                          {model.enabled ? 'Active' : 'Inactive'}
+                          {model.enabled ? ui('Active') : ui('Inactive')}
                         </span>
                         <Pencil
                           size={14}
@@ -494,8 +509,9 @@ export function SettingsPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-nofx-text-muted">
-                  {exchanges.length} account{exchanges.length !== 1 ? 's' : ''}{' '}
-                  connected
+                  {language === 'zh'
+                    ? `已连接 ${exchanges.length} 个账户`
+                    : `${exchanges.length} account${exchanges.length !== 1 ? 's' : ''} connected`}
                 </p>
                 <div className="flex items-center gap-2">
                   <button
@@ -503,7 +519,9 @@ export function SettingsPage() {
                     disabled={exchangeStatesLoading}
                     className="text-xs font-medium bg-nofx-bg-deeper hover:bg-nofx-bg-deeper disabled:opacity-60 text-nofx-text px-3 py-1.5 rounded-lg transition-colors"
                   >
-                    {exchangeStatesLoading ? 'Refreshing…' : 'Refresh Balances'}
+                    {exchangeStatesLoading
+                      ? ui('Refreshing…')
+                      : ui('Refresh Balances')}
                   </button>
                   <button
                     onClick={() => {
@@ -513,14 +531,14 @@ export function SettingsPage() {
                     className="flex items-center gap-1.5 text-xs font-medium bg-nofx-gold/10 hover:bg-nofx-gold/20 text-nofx-gold px-3 py-1.5 rounded-lg transition-colors"
                   >
                     <Plus size={14} />
-                    Add Exchange
+                    {ui('Add Exchange')}
                   </button>
                 </div>
               </div>
 
               {exchanges.length === 0 ? (
                 <div className="text-center py-8 text-nofx-text-muted text-sm">
-                  No exchange accounts connected yet
+                  {ui('No exchange accounts connected yet')}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -547,20 +565,26 @@ export function SettingsPage() {
                               <p className="text-xs text-nofx-text-muted capitalize">
                                 {exchange.exchange_type || exchange.type}
                               </p>
-                              {configBadge('API Key', !!exchange.has_api_key)}
-                              {configBadge('Secret', !!exchange.has_secret_key)}
+                              {configBadge(
+                                ui('API Key'),
+                                !!exchange.has_api_key
+                              )}
+                              {configBadge(
+                                ui('Secret'),
+                                !!exchange.has_secret_key
+                              )}
                               {exchange.has_passphrase
-                                ? configBadge('Passphrase', true)
+                                ? configBadge(ui('Passphrase'), true)
                                 : null}
                               {exchange.hyperliquidWalletAddr
-                                ? configBadge('Wallet', true)
+                                ? configBadge(ui('Wallet'), true)
                                 : null}
                               {exchange.has_aster_private_key
-                                ? configBadge('Aster Key', true)
+                                ? configBadge(ui('Aster Key'), true)
                                 : null}
                               {exchange.has_lighter_private_key ||
                               exchange.has_lighter_api_key_private_key
-                                ? configBadge('Lighter Key', true)
+                                ? configBadge(ui('Lighter Key'), true)
                                 : null}
                             </div>
                             {accountState && (
@@ -568,14 +592,14 @@ export function SettingsPage() {
                                 {accountState.status === 'ok' ? (
                                   <>
                                     <span className="rounded-full bg-nofx-success/10 px-2 py-0.5 font-mono text-nofx-success">
-                                      Balance{' '}
+                                      {ui('Balance')}{' '}
                                       {accountState.display_balance ||
                                         `${accountState.total_equity?.toFixed(2) ?? '--'} ${accountState.asset || ''}`}
                                     </span>
                                     {typeof accountState.available_balance ===
                                       'number' && (
                                       <span className="text-nofx-text-muted">
-                                        Available{' '}
+                                        {ui('Available')}{' '}
                                         {accountState.available_balance.toFixed(
                                           2
                                         )}{' '}
@@ -585,7 +609,7 @@ export function SettingsPage() {
                                   </>
                                 ) : (
                                   <span className="rounded-full bg-nofx-gold/10 px-2 py-0.5 text-nofx-gold">
-                                    Balance unavailable:{' '}
+                                    {ui('Balance unavailable:')}{' '}
                                     {accountState.error_message ||
                                       accountState.status}
                                   </span>
@@ -610,8 +634,9 @@ export function SettingsPage() {
           {activeTab === 'telegram' && (
             <div className="space-y-4">
               <p className="text-sm text-nofx-text-muted">
-                Connect a Telegram bot to receive trading notifications and
-                interact with your traders.
+                {ui(
+                  'Connect a Telegram bot to receive trading notifications and interact with your traders.'
+                )}
               </p>
               <button
                 onClick={() => setShowTelegramModal(true)}
@@ -622,7 +647,7 @@ export function SettingsPage() {
                     <MessageCircle size={14} className="text-[#0088cc]" />
                   </div>
                   <span className="text-sm font-medium text-nofx-text">
-                    Configure Telegram Bot
+                    {ui('Configure Telegram Bot')}
                   </span>
                 </div>
                 <ChevronRight

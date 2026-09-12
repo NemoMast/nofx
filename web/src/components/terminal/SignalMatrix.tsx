@@ -1,3 +1,4 @@
+import { useUiLanguage } from './uiLanguage'
 import { useMemo } from 'react'
 import type { SignalRankItem } from '../../lib/api/data'
 
@@ -64,6 +65,7 @@ export function SignalMatrix({
   active,
   onSelect,
 }: SignalMatrixProps) {
+  const ui = useUiLanguage()
   const view = useMemo(() => {
     const raw = items ?? []
     const sorted = [...raw].sort((a, b) => a.rank - b.rank).slice(0, max)
@@ -96,7 +98,7 @@ export function SignalMatrix({
     return (
       <div style={{ fontFamily: 'var(--tm-mono)' }}>
         <Head />
-        <div className="tm-sc">No signal data (claw402).</div>
+        <div className="tm-sc">{ui('No signal data (claw402).')}</div>
       </div>
     )
   }
@@ -116,13 +118,17 @@ export function SignalMatrix({
           fontSize: 9,
         }}
       >
-        <Swatch c="var(--tm-up)" label="Bullish" />
-        <Swatch c="var(--tm-dn)" label="Bearish" />
-        <Swatch c="var(--tm-muted)" label="Neutral" />
+        <Swatch c="var(--tm-up)" label={ui('Bullish')} />
+        <Swatch c="var(--tm-dn)" label={ui('Bearish')} />
+        <Swatch c="var(--tm-muted)" label={ui('Neutral')} />
         {onSelect && (
-          <span style={{ color: 'var(--tm-red)' }}>click to switch ▸</span>
+          <span style={{ color: 'var(--tm-red)' }}>
+            {ui('click to switch ▸')}
+          </span>
         )}
-        <span style={{ marginLeft: 'auto' }}>{view.cells.length} signals</span>
+        <span style={{ marginLeft: 'auto' }}>
+          {view.cells.length} {ui('signals')}
+        </span>
       </div>
 
       <div
@@ -138,7 +144,7 @@ export function SignalMatrix({
           return (
             <div
               key={`${c.rank}-${c.symbol}`}
-              title={`${base} · #${c.rank} · ${c.bias} · ${c.score} — click to switch`}
+              title={`${base} · #${c.rank} · ${ui(c.bias)} · ${c.score} — ${ui('click to switch')}`}
               onClick={onSelect ? () => onSelect(base) : undefined}
               style={{
                 padding: '4px 5px',
@@ -189,6 +195,7 @@ function fmtScore(n: number): string {
 }
 
 function Head() {
+  const ui = useUiLanguage()
   return (
     <div
       style={{
@@ -199,9 +206,9 @@ function Head() {
       }}
     >
       <span className="tm-px" style={{ fontSize: 11 }}>
-        Signal matrix
+        {ui('Signal matrix')}
       </span>
-      <span className="tm-sc">Signal matrix · vergex</span>
+      <span className="tm-sc">{ui('Signal matrix · vergex')}</span>
     </div>
   )
 }

@@ -127,7 +127,7 @@ export function RegisterPage() {
           >
             <div className="w-2 h-2 rounded-full bg-nofx-danger group-hover:animate-pulse"></div>
             <span className="text-xs font-mono uppercase tracking-widest">
-              &lt; ABORT_REGISTRATION
+              {language === 'zh' ? '返回' : '&lt; ABORT_REGISTRATION'}
             </span>
           </button>
         </div>
@@ -143,11 +143,15 @@ export function RegisterPage() {
             </div>
           </div>
           <h1 className="text-3xl font-bold tracking-tighter text-nofx-text uppercase mb-2">
-            <span className="text-nofx-gold">CREATE</span> YOUR ACCOUNT
+            <span className="text-nofx-gold">
+              {language === 'zh' ? '创建' : 'CREATE'}
+            </span>{' '}
+            {language === 'zh' ? '你的账号' : 'YOUR ACCOUNT'}
           </h1>
           <p className="text-nofx-text-muted text-sm">
-            This account owns your NOFX instance. Next step: a guided launch —
-            about $13 and five minutes to your first AI trade.
+            {language === 'zh'
+              ? '此账号用于管理你的 NOFX 实例。接下来按向导完成设置，约需 13 美元即可开始 AI 交易。'
+              : 'This account owns your NOFX instance. Next step: a guided launch — about $13 and five minutes to your first AI trade.'}
           </p>
         </div>
 
@@ -172,12 +176,18 @@ export function RegisterPage() {
               <div className="flex gap-2">
                 <span className="text-nofx-success">➜</span>
                 <span>
-                  System Check: <span className="text-nofx-success">READY</span>
+                  {language === 'zh' ? '系统检查：' : 'System Check:'}
+                  <span className="text-nofx-success">
+                    {language === 'zh' ? '已就绪' : 'READY'}
+                  </span>
                 </span>
               </div>
               <div className="flex gap-2">
                 <span className="text-nofx-success">➜</span>
-                <span>Mode: {betaMode ? 'CLOSED_BETA CA1' : 'PUBLIC'}</span>
+                <span>
+                  {language === 'zh' ? '模式：' : 'Mode:'}
+                  {betaMode ? 'CLOSED_BETA CA1' : 'PUBLIC'}
+                </span>
               </div>
             </div>
 
@@ -253,7 +263,9 @@ export function RegisterPage() {
               <div className="bg-nofx-bg-deeper p-3 rounded border border-[rgba(26,24,19,0.14)]">
                 <div className="text-[10px] uppercase tracking-wider text-nofx-text-muted mb-2 font-bold flex items-center gap-2">
                   <div className="w-1 h-1 rounded-full bg-nofx-text-muted"></div>
-                  Password Strength Protocol
+                  {language === 'zh'
+                    ? '密码强度要求'
+                    : 'Password Strength Protocol'}
                 </div>
                 <div className="text-xs font-mono text-nofx-text-muted">
                   <PasswordChecklist
@@ -286,7 +298,7 @@ export function RegisterPage() {
               {betaMode && (
                 <div>
                   <label className="block text-xs uppercase tracking-wider text-nofx-gold mb-1.5 ml-1 font-bold">
-                    Priority Access Code
+                    {language === 'zh' ? '优先访问码' : 'Priority Access Code'}
                   </label>
                   <input
                     type="text"
@@ -302,14 +314,17 @@ export function RegisterPage() {
                     required={betaMode}
                   />
                   <p className="text-[10px] text-nofx-text-muted font-mono mt-1 ml-1">
-                    * CASE SENSITIVE ALPHANUMERIC
+                    {language === 'zh'
+                      ? '区分大小写的字母和数字'
+                      : '* CASE SENSITIVE ALPHANUMERIC'}
                   </p>
                 </div>
               )}
 
               {error && (
                 <div className="text-xs bg-nofx-danger/10 border border-nofx-danger/30 text-nofx-danger px-3 py-2 rounded font-mono">
-                  [REGISTRATION_ERROR]: {error}
+                  {language === 'zh' ? '注册失败：' : '[REGISTRATION_ERROR]:'}
+                  {error}
                 </div>
               )}
 
@@ -321,10 +336,14 @@ export function RegisterPage() {
                 className="w-full bg-nofx-gold text-nofx-bg font-bold py-3 px-4 rounded text-sm tracking-wide uppercase hover:bg-nofx-gold-highlight transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed font-mono flex items-center justify-center gap-2 group mt-4"
               >
                 {loading ? (
-                  <span className="animate-pulse">INITIALIZING...</span>
+                  <span className="animate-pulse">
+                    {language === 'zh' ? '正在初始化…' : 'INITIALIZING...'}
+                  </span>
                 ) : (
                   <>
-                    <span>CREATE_ACCOUNT</span>
+                    <span>
+                      {language === 'zh' ? '创建账号' : 'CREATE_ACCOUNT'}
+                    </span>
                     <span className="group-hover:translate-x-1 transition-transform">
                       -&gt;
                     </span>
@@ -335,26 +354,30 @@ export function RegisterPage() {
           </div>
 
           <div className="bg-nofx-bg-deeper p-3 flex justify-between items-center text-[10px] font-mono text-nofx-text-muted border-t border-[rgba(26,24,19,0.14)]">
-            <div>ENCRYPTION: AES-256</div>
-            <div>SECURE_REGISTRY</div>
+            <div>
+              {language === 'zh' ? '加密方式：AES-256' : 'ENCRYPTION: AES-256'}
+            </div>
+            <div>{language === 'zh' ? '安全注册' : 'SECURE_REGISTRY'}</div>
           </div>
         </div>
 
         <div className="text-center mt-8 space-y-4">
           <p className="text-xs font-mono text-nofx-text-muted">
-            EXISTING_OPERATOR?{' '}
+            {language === 'zh' ? '已有账号？' : 'EXISTING_OPERATOR?'}{' '}
             <button
               onClick={() => navigate('/login')}
               className="text-nofx-gold hover:underline hover:text-nofx-gold-highlight transition-colors ml-1 uppercase"
             >
-              ACCESS TERMINAL
+              {language === 'zh' ? '登录终端' : 'ACCESS TERMINAL'}
             </button>
           </p>
           <button
             onClick={() => navigate('/')}
             className="text-[10px] text-nofx-text-muted hover:text-nofx-danger transition-colors uppercase tracking-widest hover:underline decoration-nofx-danger/30 font-mono"
           >
-            [ ABORT_REGISTRATION_RETURN_HOME ]
+            {language === 'zh'
+              ? '返回首页'
+              : '[ ABORT_REGISTRATION_RETURN_HOME ]'}
           </button>
         </div>
       </div>

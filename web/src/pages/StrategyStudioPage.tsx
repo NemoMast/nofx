@@ -1,3 +1,4 @@
+import { useUiLanguage } from '../components/terminal/uiLanguage'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -28,6 +29,7 @@ import type {
   StrategyConfig,
 } from '../types'
 import { launchAutopilot } from '../lib/launch/launchAutopilot'
+import { localizeLaunchMessage } from '../lib/launch/messages'
 import type {
   MarketSymbol,
   VergexHeatmapBin,
@@ -41,17 +43,23 @@ import { buildDashboardPath, ROUTES } from '../router/paths'
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 
 type Scope =
-  'all' | 'crypto' | 'stock' | 'commodity' | 'index' | 'forex' | 'pre_ipo'
+  | 'all'
+  | 'crypto'
+  | 'stock'
+  | 'commodity'
+  | 'index'
+  | 'forex'
+  | 'pre_ipo'
 type ListMode = 'claw402' | 'pool'
 
 const scopeOptions: Array<{ value: Scope; zh: string; en: string }> = [
-  { value: 'all', zh: 'All Claw402', en: 'All Claw402' },
-  { value: 'stock', zh: 'US Stocks', en: 'US Stocks' },
-  { value: 'crypto', zh: 'Crypto', en: 'Crypto' },
-  { value: 'commodity', zh: 'Commodities', en: 'Commodities' },
-  { value: 'index', zh: 'Indices', en: 'Indices' },
-  { value: 'forex', zh: 'FX', en: 'FX' },
-  { value: 'pre_ipo', zh: 'Pre-IPO', en: 'Pre-IPO' },
+  { value: 'all', zh: '全部 Claw402', en: 'All Claw402' },
+  { value: 'stock', zh: '美股', en: 'US Stocks' },
+  { value: 'crypto', zh: '加密货币', en: 'Crypto' },
+  { value: 'commodity', zh: '大宗商品', en: 'Commodities' },
+  { value: 'index', zh: '指数', en: 'Indices' },
+  { value: 'forex', zh: '外汇', en: 'FX' },
+  { value: 'pre_ipo', zh: '上市前资产', en: 'Pre-IPO' },
 ]
 
 const categoryPriority: Record<string, number> = {
@@ -92,9 +100,9 @@ const profileOptions: Array<{
 }> = [
   {
     value: 'careful',
-    zh: 'Careful',
+    zh: '谨慎',
     en: 'Careful',
-    zhNote: 'Fewer trades, only aligned signals',
+    zhNote: '减少交易，仅在信号一致时入场',
     enNote: 'Fewer trades, only aligned signals',
     maxPositions: 1,
     leverage: 10,
@@ -110,9 +118,9 @@ const profileOptions: Array<{
   },
   {
     value: 'balanced',
-    zh: 'Balanced',
+    zh: '均衡',
     en: 'Balanced',
-    zhNote: 'Recommended balance of opportunity and risk',
+    zhNote: '兼顾机会与风险的推荐配置',
     enNote: 'Recommended balance of opportunity and risk',
     maxPositions: 2,
     leverage: 10,
@@ -128,9 +136,9 @@ const profileOptions: Array<{
   },
   {
     value: 'active',
-    zh: 'Active',
+    zh: '积极',
     en: 'Active',
-    zhNote: 'Faster trend capture with more positions',
+    zhNote: '更快捕捉趋势，支持更多持仓',
     enNote: 'Faster trend capture with more positions',
     maxPositions: 3,
     leverage: 10,
@@ -336,7 +344,10 @@ function signalBiasInfo(bias: string | undefined) {
   }
 }
 
-function formatSignalStrength(item: VergexSignalItem) {
+function formatSignalStrength(
+  item: VergexSignalItem,
+  ui: (text: string) => string
+) {
   const parts: string[] = []
   if (typeof item.score === 'number' && Number.isFinite(item.score)) {
     const sign = item.score > 0 ? '+' : ''
@@ -346,10 +357,10 @@ function formatSignalStrength(item: VergexSignalItem) {
     const confidence =
       item.confidence <= 1 ? item.confidence * 100 : item.confidence
     if (confidence > 0) {
-      parts.push(`${confidence.toFixed(0)}% conf`)
+      parts.push(`${confidence.toFixed(0)}% ${ui('conf')}`)
     }
   }
-  return parts.join(' · ') || 'details ready'
+  return parts.join(' · ') || ui('details ready')
 }
 
 function signalSortValue(item: VergexSignalItem) {
@@ -430,6 +441,7 @@ function DetailMetricCard({
   note?: string
   tone?: 'neutral' | 'green' | 'red' | 'cyan' | 'gold'
 }) {
+  const ui = useUiLanguage()
   const toneClass =
     tone === 'green'
       ? 'text-nofx-success'
@@ -443,11 +455,11 @@ function DetailMetricCard({
 
   return (
     <div className="rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-deeper p-3">
-      <div className="text-xs text-nofx-text-muted">{label}</div>
+      <div className="text-xs text-nofx-text-muted">{ui(label)}</div>
       <div className={`mt-2 font-mono text-lg ${toneClass}`}>{value}</div>
       {note ? (
         <div className="mt-2 text-xs leading-5 text-nofx-text-muted">
-          {note}
+          {ui(note)}
         </div>
       ) : null}
     </div>
@@ -461,10 +473,11 @@ function DirectionChangePanel({
   current: VergexDirectionCurrentResponse | null
   history: VergexDirectionHistoryResponse | null
 }) {
+  const ui = useUiLanguage()
   if (!current && !history) {
     return (
       <div className="rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-deeper p-4 text-sm text-nofx-text-muted">
-        Bull/Bear Radar has not loaded yet.
+        {ui('Bull/Bear Radar has not loaded yet.')}
       </div>
     )
   }
@@ -474,15 +487,15 @@ function DirectionChangePanel({
     <section className="overflow-hidden rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-lighter shadow-lg">
       <div className="border-b border-[rgba(26,24,19,0.14)] px-5 py-4">
         <div className="text-base font-semibold text-nofx-text">
-          Bull/Bear Radar
+          {ui('Bull/Bear Radar')}
         </div>
         <div
           className={`mt-3 text-3xl font-bold ${directionStyle(direction).text}`}
         >
-          {signalBiasInfo(direction).label}
+          {ui(signalBiasInfo(direction).label)}
         </div>
         <div className="mt-2 font-mono text-sm text-nofx-text-muted">
-          mark {formatPrice(current?.mark_price)} · stable since{' '}
+          {ui('mark')} {formatPrice(current?.mark_price)} {ui('· stable since')}{' '}
           {current?.stable_since_at
             ? new Date(current.stable_since_at).toLocaleString()
             : '—'}
@@ -502,7 +515,7 @@ function DirectionChangePanel({
       ) : null}
       <div className="border-t border-[rgba(26,24,19,0.14)] p-5">
         <div className="mb-3 text-sm font-semibold text-nofx-text">
-          Direction changes
+          {ui('Direction changes')}
         </div>
         <div className="space-y-2">
           {(history?.items || []).slice(0, 10).map((item, index) => (
@@ -511,7 +524,7 @@ function DirectionChangePanel({
               className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-nofx-bg-deeper px-3 py-2 text-sm"
             >
               <span className="font-mono text-nofx-text">
-                {item.prev_bias || '—'} → {item.new_bias || '—'}
+                {ui(item.prev_bias || '—')} → {ui(item.new_bias || '—')}
               </span>
               <span className="font-mono text-nofx-text-muted">
                 {formatPrice(item.mark_price)} ·{' '}
@@ -523,7 +536,7 @@ function DirectionChangePanel({
           ))}
           {!history?.items?.length ? (
             <div className="text-sm text-nofx-text-muted">
-              No direction-change history returned.
+              {ui('No direction-change history returned.')}
             </div>
           ) : null}
         </div>
@@ -584,6 +597,7 @@ function HeatmapChartRow({
   maxRight: number
   markPrice?: number
 }) {
+  const ui = useUiLanguage()
   const price = binPrice(bin)
   const isCurrent =
     typeof markPrice === 'number' &&
@@ -596,11 +610,11 @@ function HeatmapChartRow({
     <div
       className="relative z-10 grid grid-cols-[78px_minmax(0,1fr)] items-center gap-3"
       title={[
-        `Price ${formatPrice(price)}`,
-        `Long cost ${formatMoney(bin.longCost)}`,
-        `Short cost ${formatMoney(bin.shortCost)}`,
-        `Long liquidation ${formatMoney(bin.longLiq)}`,
-        `Short liquidation ${formatMoney(bin.shortLiq)}`,
+        `${ui('Price')} ${formatPrice(price)}`,
+        `${ui('Long cost')} ${formatMoney(bin.longCost)}`,
+        `${ui('Short cost')} ${formatMoney(bin.shortCost)}`,
+        `${ui('Long liquidation')} ${formatMoney(bin.longLiq)}`,
+        `${ui('Short liquidation')} ${formatMoney(bin.shortLiq)}`,
       ].join(' · ')}
     >
       <div
@@ -619,7 +633,7 @@ function HeatmapChartRow({
           <>
             <div className="absolute inset-x-0 top-1/2 h-px bg-nofx-gold" />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-nofx-gold px-2 py-1 font-mono text-xs font-bold text-nofx-bg">
-              Mark {formatPrice(markPrice)}
+              {ui('Mark')} {formatPrice(markPrice)}
             </div>
           </>
         ) : null}
@@ -649,6 +663,7 @@ function CostLiquidationHeatmap({
 }: {
   heatmap: VergexHeatmapResponse | null
 }) {
+  const ui = useUiLanguage()
   const data = heatmap?.data
   const bins = (data?.bins || [])
     .filter((bin) => binValue(bin) > 0)
@@ -658,7 +673,7 @@ function CostLiquidationHeatmap({
   if (!data || bins.length === 0) {
     return (
       <div className="rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-deeper p-4 text-sm text-nofx-text-muted">
-        Cost/liquidation heatmap has not loaded yet.
+        {ui('Cost/liquidation heatmap has not loaded yet.')}
       </div>
     )
   }
@@ -686,16 +701,20 @@ function CostLiquidationHeatmap({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="text-base font-semibold text-nofx-text">
-              Cost / Liquidation Heatmap
+              {ui('Cost / Liquidation Heatmap')}
               <span className="ml-3 text-sm font-normal text-nofx-text-muted">
-                position cost distribution · liquidation clusters
+                {ui('position cost distribution · liquidation clusters')}
               </span>
             </div>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-nofx-text-muted">
-              <span>{includedCost.toLocaleString()} cost positions</span>
-              <span>{includedLiq.toLocaleString()} liquidation prices</span>
               <span>
-                mark{' '}
+                {includedCost.toLocaleString()} {ui('cost positions')}
+              </span>
+              <span>
+                {includedLiq.toLocaleString()} {ui('liquidation prices')}
+              </span>
+              <span>
+                {ui('mark')}{' '}
                 <span className="font-semibold text-nofx-text">
                   {formatPrice(data.markPrice)}
                 </span>
@@ -703,13 +722,14 @@ function CostLiquidationHeatmap({
             </div>
             {data.liquidation?.reason ? (
               <div className="mt-2 text-sm text-nofx-gold">
-                Liquidation prices use latest snapshot; incremental trades can
-                lag.
+                {ui(
+                  'Liquidation prices use latest snapshot; incremental trades can lag.'
+                )}
               </div>
             ) : null}
           </div>
           <div className="rounded-full bg-nofx-success/10 px-3 py-1 text-xs font-semibold text-nofx-success">
-            live
+            {ui('live')}
           </div>
         </div>
       </div>
@@ -718,19 +738,19 @@ function CostLiquidationHeatmap({
         <div className="mb-4 flex flex-wrap justify-center gap-4 text-sm text-nofx-text-muted">
           <span className="inline-flex items-center gap-1">
             <span className="h-3 w-3 rounded bg-nofx-success/70" />
-            Long cost
+            {ui('Long cost')}
           </span>
           <span className="inline-flex items-center gap-1">
             <span className="h-3 w-3 rounded bg-nofx-danger/70" />
-            Short cost
+            {ui('Short cost')}
           </span>
           <span className="inline-flex items-center gap-1 text-orange-300">
             <span className="h-3 w-3 rounded bg-orange-400" />
-            Long liquidation
+            {ui('Long liquidation')}
           </span>
           <span className="inline-flex items-center gap-1 text-nofx-gold">
             <span className="h-3 w-3 rounded bg-nofx-gold" />
-            Short liquidation
+            {ui('Short liquidation')}
           </span>
         </div>
 
@@ -761,21 +781,23 @@ function CostLiquidationHeatmap({
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           <DetailMetricCard
-            label="Flush fuel below"
+            label={ui('Flush fuel below')}
             value={formatMoney(longLiqTotal)}
             note="Long liquidations can force sell into downside breaks."
             tone="red"
           />
           <DetailMetricCard
-            label="Squeeze fuel above"
+            label={ui('Squeeze fuel above')}
             value={formatMoney(shortLiqTotal)}
             note="Short liquidations can force buy into upside breaks."
             tone="cyan"
           />
           <DetailMetricCard
-            label="Bin step"
+            label={ui('Bin step')}
             value={formatNumber(data.binStep, 4)}
-            note={`${bins.length} active price bins returned.`}
+            note={ui('{count} active price bins returned.', {
+              count: bins.length,
+            })}
             tone="neutral"
           />
         </div>
@@ -785,6 +807,7 @@ function CostLiquidationHeatmap({
 }
 
 export function StrategyStudioPage() {
+  const ui = useUiLanguage()
   const { token } = useAuth()
   const { language } = useLanguage()
   const navigate = useNavigate()
@@ -881,7 +904,7 @@ export function StrategyStudioPage() {
         setHasChanges(false)
       } catch (err) {
         notify.error(
-          err instanceof Error ? err.message : 'Failed to load strategies'
+          err instanceof Error ? err.message : ui('Failed to load strategies')
         )
       } finally {
         setLoading(false)
@@ -898,7 +921,7 @@ export function StrategyStudioPage() {
       setSymbols(result.symbols || [])
     } catch (err) {
       setSymbolsError(
-        err instanceof Error ? err.message : 'Symbol list unavailable'
+        err instanceof Error ? err.message : ui('Symbol list unavailable')
       )
     } finally {
       setSymbolsLoading(false)
@@ -916,7 +939,7 @@ export function StrategyStudioPage() {
       setListMode('claw402')
     } catch (err) {
       setSignalsError(
-        err instanceof Error ? err.message : 'Claw402.ai board unavailable'
+        err instanceof Error ? err.message : ui('Claw402.ai board unavailable')
       )
     } finally {
       setSignalsLoading(false)
@@ -961,10 +984,10 @@ export function StrategyStudioPage() {
         setDirectionCurrent(currentResult.value)
       } else {
         errors.push(
-          `Current direction: ${
+          `${ui('Current direction')}: ${
             currentResult.reason instanceof Error
               ? currentResult.reason.message
-              : 'unavailable'
+              : ui('unavailable')
           }`
         )
       }
@@ -973,7 +996,7 @@ export function StrategyStudioPage() {
         setDirectionHistory(historyResult.value)
       } else {
         errors.push(
-          `Direction history: ${historyResult.reason instanceof Error ? historyResult.reason.message : 'unavailable'}`
+          `${ui('Direction history')}: ${historyResult.reason instanceof Error ? historyResult.reason.message : ui('unavailable')}`
         )
       }
 
@@ -981,10 +1004,10 @@ export function StrategyStudioPage() {
         setHeatmap(heatmapResult.value)
       } else {
         errors.push(
-          `Heatmap: ${
+          `${ui('Heatmap')}: ${
             heatmapResult.reason instanceof Error
               ? heatmapResult.reason.message
-              : 'unavailable'
+              : ui('unavailable')
           }`
         )
       }
@@ -1090,12 +1113,12 @@ export function StrategyStudioPage() {
       const created = await api.createStrategy({
         name: text(
           language,
-          'NOFX Claw402 Auto Strategy',
+          'NOFX Claw402 自动策略',
           'NOFX Claw402 Auto Strategy'
         ),
         description: text(
           language,
-          'The single built-in strategy: read the Claw402.ai board, fetch per-symbol details, then trade with raw candles.',
+          '内置策略：读取 Claw402.ai 榜单，获取各品种详情，结合原始 K 线交易。',
           'The single built-in strategy: read the Claw402.ai board, fetch per-symbol details, then trade with raw candles.'
         ),
         config: defaultConfig,
@@ -1104,7 +1127,7 @@ export function StrategyStudioPage() {
       setHasChanges(false)
     } catch (err) {
       notify.error(
-        err instanceof Error ? err.message : 'Failed to create strategy'
+        err instanceof Error ? err.message : ui('Failed to create strategy')
       )
     }
   }
@@ -1137,7 +1160,7 @@ export function StrategyStudioPage() {
           }),
         }
       )
-      if (!response.ok) throw new Error('Failed to save strategy')
+      if (!response.ok) throw new Error(ui('Failed to save strategy'))
       if (activateAfter) {
         await api.activateStrategy(selectedStrategy.id)
       }
@@ -1145,17 +1168,13 @@ export function StrategyStudioPage() {
       notify.success(
         successMessage ||
           (activateAfter
-            ? text(
-                language,
-                'Strategy saved and activated',
-                'Strategy saved and activated'
-              )
-            : text(language, 'Strategy saved', 'Strategy saved'))
+            ? text(language, '策略已保存并启用', 'Strategy saved and activated')
+            : text(language, '策略已保存', 'Strategy saved'))
       )
       await loadStrategies(selectedStrategy.id)
     } catch (err) {
       notify.error(
-        err instanceof Error ? err.message : 'Failed to save strategy'
+        err instanceof Error ? err.message : ui('Failed to save strategy')
       )
     } finally {
       setSaving(false)
@@ -1229,7 +1248,7 @@ export function StrategyStudioPage() {
       })
 
       if (!outcome.ok) {
-        notify.error(outcome.message)
+        notify.error(localizeLaunchMessage(outcome.message, language))
         const setupTarget =
           outcome.kind === 'error' ? null : outcome.setupTarget
         if (setupTarget) {
@@ -1241,7 +1260,7 @@ export function StrategyStudioPage() {
       if (outcome.warning) {
         notify.warning(outcome.warning)
       }
-      notify.success('NOFX Autopilot started')
+      notify.success(ui('NOFX Autopilot started'))
       setHasChanges(false)
       await loadStrategies(selectedStrategy.id)
       navigate(buildDashboardPath(outcome.traderId))
@@ -1254,11 +1273,11 @@ export function StrategyStudioPage() {
     if (!selectedStrategy) return
     try {
       await api.activateStrategy(selectedStrategy.id)
-      notify.success(text(language, 'Strategy activated', 'Strategy activated'))
+      notify.success(text(language, '策略已启用', 'Strategy activated'))
       await loadStrategies(selectedStrategy.id)
     } catch (err) {
       notify.error(
-        err instanceof Error ? err.message : 'Failed to activate strategy'
+        err instanceof Error ? err.message : ui('Failed to activate strategy')
       )
     }
   }
@@ -1266,21 +1285,21 @@ export function StrategyStudioPage() {
   const deleteStrategy = async () => {
     if (!selectedStrategy || selectedStrategy.is_active) return
     const ok = await confirmToast(
-      text(language, 'Delete this strategy?', 'Delete this strategy?'),
+      text(language, '删除此策略？', 'Delete this strategy?'),
       {
-        title: text(language, 'Confirm delete', 'Confirm delete'),
-        okText: text(language, 'Delete', 'Delete'),
-        cancelText: text(language, 'Cancel', 'Cancel'),
+        title: text(language, '确认删除', 'Confirm delete'),
+        okText: text(language, '删除', 'Delete'),
+        cancelText: text(language, '取消', 'Cancel'),
       }
     )
     if (!ok) return
     try {
       await api.deleteStrategy(selectedStrategy.id)
-      notify.success(text(language, 'Strategy deleted', 'Strategy deleted'))
+      notify.success(text(language, '策略已删除', 'Strategy deleted'))
       await loadStrategies()
     } catch (err) {
       notify.error(
-        err instanceof Error ? err.message : 'Failed to delete strategy'
+        err instanceof Error ? err.message : ui('Failed to delete strategy')
       )
     }
   }
@@ -1390,12 +1409,12 @@ export function StrategyStudioPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold text-nofx-text">
-              {text(language, 'NOFX Autopilot', 'NOFX Autopilot')}
+              {text(language, 'NOFX 自动交易', 'NOFX Autopilot')}
             </h1>
             <p className="mt-1 text-sm text-nofx-text-muted">
               {text(
                 language,
-                'Autonomous market selection powered by the live Claw402.ai direction board.',
+                '根据 Claw402.ai 实时方向榜单自动选择交易市场。',
                 'Autonomous market selection powered by the live Claw402.ai direction board.'
               )}
             </p>
@@ -1411,7 +1430,7 @@ export function StrategyStudioPage() {
             ) : (
               <Bot className="h-4 w-4" />
             )}
-            {text(language, 'Launch Autopilot', 'Launch Autopilot')}
+            {text(language, '启动自动交易', 'Launch Autopilot')}
           </button>
         </div>
       </div>
@@ -1419,7 +1438,7 @@ export function StrategyStudioPage() {
       <div className="grid min-h-[calc(100vh-137px)] grid-cols-1">
         <aside className="hidden border-r border-[rgba(26,24,19,0.14)] bg-nofx-bg-deeper p-3">
           <div className="mb-2 px-2 text-xs font-medium uppercase tracking-wide text-nofx-text-muted">
-            {text(language, 'My strategies', 'My strategies')}
+            {text(language, '我的策略', 'My strategies')}
           </div>
           <div className="space-y-2">
             {strategies.map((strategy) => (
@@ -1443,7 +1462,7 @@ export function StrategyStudioPage() {
                   </span>
                   {strategy.is_active ? (
                     <span className="rounded bg-nofx-success/15 px-1.5 py-0.5 text-[10px] text-nofx-success">
-                      {text(language, 'Active', 'Active')}
+                      {text(language, '已启用', 'Active')}
                     </span>
                   ) : null}
                 </div>
@@ -1485,14 +1504,14 @@ export function StrategyStudioPage() {
                       }}
                       placeholder={text(
                         language,
-                        'One-line strategy note',
+                        '一句话策略备注',
                         'One-line strategy note'
                       )}
                       className="mt-1 w-full bg-transparent text-sm text-nofx-text-muted outline-none placeholder:text-nofx-text-muted/50"
                     />
                     {hasChanges ? (
                       <div className="mt-2 text-xs text-nofx-gold">
-                        {text(language, 'Unsaved changes', 'Unsaved changes')}
+                        {text(language, '有未保存的更改', 'Unsaved changes')}
                       </div>
                     ) : null}
                   </div>
@@ -1508,7 +1527,7 @@ export function StrategyStudioPage() {
                       ) : (
                         <Check className="h-4 w-4" />
                       )}
-                      {text(language, 'Save and use', 'Save and use')}
+                      {text(language, '保存并使用', 'Save and use')}
                     </button>
                     <button
                       type="button"
@@ -1521,7 +1540,7 @@ export function StrategyStudioPage() {
                       ) : (
                         <Save className="h-4 w-4" />
                       )}
-                      {text(language, 'Save', 'Save')}
+                      {text(language, '保存', 'Save')}
                     </button>
                     {!selectedStrategy.is_active ? (
                       <button
@@ -1530,7 +1549,7 @@ export function StrategyStudioPage() {
                         className="inline-flex items-center gap-2 rounded-lg border border-nofx-success/30 bg-nofx-success/10 px-3 py-2 text-sm text-nofx-success hover:bg-nofx-success/15"
                       >
                         <Check className="h-4 w-4" />
-                        {text(language, 'Activate only', 'Activate only')}
+                        {text(language, '仅启用', 'Activate only')}
                       </button>
                     ) : null}
                     {!selectedStrategy.is_active ? (
@@ -1540,7 +1559,7 @@ export function StrategyStudioPage() {
                         className="inline-flex items-center gap-2 rounded-lg border border-nofx-danger/25 bg-nofx-danger/10 px-3 py-2 text-sm text-nofx-danger hover:bg-nofx-danger/15"
                       >
                         <Trash2 className="h-4 w-4" />
-                        {text(language, 'Delete', 'Delete')}
+                        {text(language, '删除', 'Delete')}
                       </button>
                     ) : null}
                   </div>
@@ -1552,10 +1571,12 @@ export function StrategyStudioPage() {
                   <div>
                     <div className="flex items-center gap-2 text-sm font-semibold text-nofx-text">
                       <Sparkles className="h-4 w-4 text-nofx-gold" />
-                      Signal Board
+                      {ui('Signal Board')}
                     </div>
                     <div className="mt-1 text-xs text-nofx-text-muted">
-                      Live direction board · direction history · liquidation map
+                      {ui(
+                        'Live direction board · direction history · liquidation map'
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -1577,8 +1598,8 @@ export function StrategyStudioPage() {
                     >
                       <Sparkles className="h-3.5 w-3.5" />
                       {signals.length === 0
-                        ? 'Load Claw402 board'
-                        : 'Claw402 board'}
+                        ? ui('Load Claw402 board')
+                        : ui('Claw402 board')}
                     </button>
                     <button
                       type="button"
@@ -1593,7 +1614,7 @@ export function StrategyStudioPage() {
                       <RefreshCw
                         className={`h-3.5 w-3.5 ${symbolsLoading ? 'animate-spin' : ''}`}
                       />
-                      Symbol pool
+                      {ui('Symbol pool')}
                     </button>
                     <button
                       type="button"
@@ -1606,7 +1627,7 @@ export function StrategyStudioPage() {
                       <RefreshCw
                         className={`h-3.5 w-3.5 ${signalsLoading ? 'animate-spin' : ''}`}
                       />
-                      Refresh
+                      {ui('Refresh')}
                     </button>
                     {selectedSymbols.length > 0 ? (
                       <button
@@ -1619,7 +1640,7 @@ export function StrategyStudioPage() {
                         }
                         className="hidden rounded-lg border border-[rgba(26,24,19,0.14)] px-3 py-2 text-xs text-nofx-text-muted hover:text-nofx-text"
                       >
-                        Clear selected
+                        {ui('Clear selected')}
                       </button>
                     ) : null}
                   </div>
@@ -1653,7 +1674,7 @@ export function StrategyStudioPage() {
                             : 'border-[rgba(26,24,19,0.14)] bg-nofx-bg-deeper text-nofx-text-muted hover:text-nofx-text'
                         }`}
                       >
-                        {option.en}
+                        {text(language, option.zh, option.en)}
                         {count > 0 ? (
                           <span className="ml-2 opacity-70">{count}</span>
                         ) : null}
@@ -1683,16 +1704,16 @@ export function StrategyStudioPage() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="text-sm font-semibold text-nofx-text">
-                        Follow Claw402.ai board dynamically
+                        {ui('Follow Claw402.ai board dynamically')}
                       </div>
                       {selectedSymbols.length === 0 ? (
                         <Check className="h-4 w-4 text-nofx-success" />
                       ) : null}
                     </div>
                     <div className="mt-2 text-xs text-nofx-text-muted">
-                      At runtime, trade the current range Top{' '}
-                      {coinSource.vergex_limit || 5}; the board refreshes each
-                      cycle.
+                      {ui('At runtime, trade the current range Top')}{' '}
+                      {coinSource.vergex_limit || 5}
+                      {ui('; the board refreshes each cycle.')}
                     </div>
                   </button>
 
@@ -1712,7 +1733,7 @@ export function StrategyStudioPage() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="text-sm font-semibold text-nofx-text">
-                        Pinned universe
+                        {ui('Pinned universe')}
                       </div>
                       {selectedSymbols.length > 0 ? (
                         <Check className="h-4 w-4 text-nofx-gold" />
@@ -1720,8 +1741,12 @@ export function StrategyStudioPage() {
                     </div>
                     <div className="mt-2 text-xs text-nofx-text-muted">
                       {selectedSymbols.length > 0
-                        ? `${selectedSymbols.length} symbols fixed; trade only these.`
-                        : 'Autopilot uses the live Claw402 board by default.'}
+                        ? ui('{count} symbols fixed; trade only these.', {
+                            count: selectedSymbols.length,
+                          })
+                        : ui(
+                            'Autopilot uses the live Claw402 board by default.'
+                          )}
                     </div>
                   </button>
                 </div>
@@ -1729,8 +1754,13 @@ export function StrategyStudioPage() {
                 <div className="hidden mb-4 flex-wrap items-center gap-3">
                   <span className="text-sm text-nofx-text-muted">
                     {selectedSymbols.length > 0
-                      ? `${selectedSymbols.length} selected`
-                      : `Without manual picks, runtime uses Claw402.ai Top ${coinSource.vergex_limit || 5} in this range`}
+                      ? ui('{count} selected', {
+                          count: selectedSymbols.length,
+                        })
+                      : ui(
+                          'Without manual picks, runtime uses Claw402.ai Top {count} in this range',
+                          { count: coinSource.vergex_limit || 5 }
+                        )}
                   </span>
                   {selectedSymbols.length === 0 ? (
                     <select
@@ -1744,7 +1774,7 @@ export function StrategyStudioPage() {
                     >
                       {topNOptions.map((value) => (
                         <option key={value} value={value}>
-                          Top {value}
+                          {ui('Top')} {value}
                         </option>
                       ))}
                     </select>
@@ -1768,7 +1798,7 @@ export function StrategyStudioPage() {
                     className="mb-4 inline-flex items-center gap-2 rounded-lg border border-nofx-gold/30 bg-nofx-gold/10 px-4 py-3 text-sm font-semibold text-nofx-gold hover:bg-nofx-gold/15"
                   >
                     <Sparkles className="h-4 w-4" />
-                    Load Signal Board
+                    {ui('Load Signal Board')}
                   </button>
                 ) : null}
 
@@ -1814,14 +1844,16 @@ export function StrategyStudioPage() {
                                 className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-semibold ${bias.classes}`}
                               >
                                 <BiasIcon className="h-3.5 w-3.5" />
-                                {bias.label}
+                                {ui(bias.label)}
                               </div>
                               <span className="font-mono text-xs text-nofx-text-muted">
-                                {formatSignalStrength(item)}
+                                {formatSignalStrength(item, ui)}
                               </span>
                             </div>
                             <div className="mt-4 flex items-center justify-between gap-3 border-t border-[rgba(26,24,19,0.14)] pt-3 text-[11px] uppercase tracking-wide text-nofx-text-muted">
-                              <span>{categoryLabel(item.category, 'en')}</span>
+                              <span>
+                                {categoryLabel(item.category, language)}
+                              </span>
                               <span>{signalMarketType(item)}</span>
                             </div>
                           </div>
@@ -1853,12 +1885,14 @@ export function StrategyStudioPage() {
                               </span>
                             </div>
                             <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-nofx-text-muted">
-                              <span>{categoryLabel(item.category, 'en')}</span>
+                              <span>
+                                {categoryLabel(item.category, language)}
+                              </span>
                               <span>
                                 {signal?.bias ||
                                   (item.mark_price
                                     ? `$${item.mark_price.toFixed(2)}`
-                                    : 'ready')}
+                                    : ui('ready'))}
                               </span>
                             </div>
                           </button>
@@ -1884,7 +1918,10 @@ export function StrategyStudioPage() {
                                   #{detailSignal.rank || '-'}
                                 </span>
                                 <span className="rounded-md bg-nofx-bg-deeper px-2 py-1 text-xs text-nofx-text-muted">
-                                  {categoryLabel(detailSignal.category, 'en')}
+                                  {categoryLabel(
+                                    detailSignal.category,
+                                    language
+                                  )}
                                 </span>
                               </div>
                               <div className="mt-2 flex flex-wrap gap-2 font-mono text-xs text-nofx-text-muted">
@@ -1894,9 +1931,12 @@ export function StrategyStudioPage() {
                                   {strategySymbolForSignal(detailSignal)}
                                 </span>
                                 <span>·</span>
-                                <span>mainnet</span>
+                                <span>{ui('mainnet')}</span>
                                 <span>·</span>
-                                <span>±{detailLiqBand}% band</span>
+                                <span>
+                                  ±{detailLiqBand}
+                                  {ui('% band')}
+                                </span>
                               </div>
                             </div>
                             <div className="flex flex-wrap items-center gap-2 lg:justify-end">
@@ -1916,14 +1956,14 @@ export function StrategyStudioPage() {
                                     detailLoading ? 'animate-spin' : ''
                                   }`}
                                 />
-                                Refresh
+                                {ui('Refresh')}
                               </button>
                             </div>
                           </div>
                           {detailLoading ? (
                             <div className="mt-3 inline-flex items-center gap-2 text-xs text-nofx-text-muted">
                               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                              Loading direction history and heatmap...
+                              {ui('Loading direction history and heatmap...')}
                             </div>
                           ) : null}
                           {detailError ? (
@@ -1941,8 +1981,9 @@ export function StrategyStudioPage() {
                       </>
                     ) : (
                       <div className="rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-deeper px-4 py-4 text-sm text-nofx-text-muted">
-                        NOFX Autopilot follows the Claw402 direction board and
-                        uses liquidation structure and raw candles as context.
+                        {ui(
+                          'NOFX Autopilot follows the Claw402 direction board and uses liquidation structure and raw candles as context.'
+                        )}
                       </div>
                     )}
                   </div>
@@ -1952,7 +1993,7 @@ export function StrategyStudioPage() {
                 signals.length > 0 &&
                 visibleSignalItems.length === 0 ? (
                   <div className="rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-deeper px-3 py-3 text-sm text-nofx-text-muted">
-                    No Claw402 markets available.
+                    {ui('No Claw402 markets available.')}
                   </div>
                 ) : null}
 
@@ -1960,18 +2001,18 @@ export function StrategyStudioPage() {
                 visibleSymbols.length === 0 &&
                 !symbolsLoading ? (
                   <div className="rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-deeper px-3 py-3 text-sm text-nofx-text-muted">
-                    No markets available.
+                    {ui('No markets available.')}
                   </div>
                 ) : null}
               </section>
 
               <details className="hidden rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-deeper p-4">
                 <summary className="cursor-pointer text-sm font-semibold text-nofx-text">
-                  {text(language, 'Advanced settings', 'Advanced settings')}
+                  {text(language, '高级设置', 'Advanced settings')}
                 </summary>
                 <div className="mt-4 rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-lighter p-4">
                   <div className="mb-3 text-sm font-semibold text-nofx-text">
-                    {text(language, 'Trading style', 'Trading style')}
+                    {text(language, '交易风格', 'Trading style')}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {profileOptions.map((profile) => (
@@ -1994,12 +2035,12 @@ export function StrategyStudioPage() {
                   <div className="rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-lighter p-4">
                     <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-nofx-text">
                       <Sparkles className="h-4 w-4 text-nofx-gold" />
-                      {text(language, 'Raw candles', 'Raw candles')}
+                      {text(language, '原始 K 线', 'Raw candles')}
                     </div>
                     <div className="space-y-4">
                       <div>
                         <div className="mb-2 text-xs text-nofx-text-muted">
-                          {text(language, 'Timeframe', 'Timeframe')}
+                          {text(language, '时间周期', 'Timeframe')}
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {timeframeOptions.map((timeframe) => (
@@ -2021,7 +2062,7 @@ export function StrategyStudioPage() {
                       </div>
                       <div>
                         <div className="mb-2 text-xs text-nofx-text-muted">
-                          {text(language, 'Bars', 'Bars')}
+                          {text(language, 'K 线数量', 'Bars')}
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {barCountOptions.map((count) => (
@@ -2046,16 +2087,12 @@ export function StrategyStudioPage() {
                   <div className="rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-lighter p-4">
                     <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-nofx-text">
                       <Shield className="h-4 w-4 text-nofx-success" />
-                      {text(
-                        language,
-                        'Trading parameters',
-                        'Trading parameters'
-                      )}
+                      {text(language, '交易参数', 'Trading parameters')}
                     </div>
                     <div className="grid gap-4 sm:grid-cols-3">
                       <label className="space-y-2">
                         <span className="text-xs text-nofx-text-muted">
-                          {text(language, 'Max positions', 'Max positions')}
+                          {text(language, '最大持仓数', 'Max positions')}
                         </span>
                         <select
                           value={risk.max_positions}
@@ -2075,7 +2112,7 @@ export function StrategyStudioPage() {
                       </label>
                       <label className="space-y-2">
                         <span className="text-xs text-nofx-text-muted">
-                          {text(language, 'Leverage', 'Leverage')}
+                          {text(language, '杠杆', 'Leverage')}
                         </span>
                         <select
                           value={risk.altcoin_max_leverage}
@@ -2093,11 +2130,7 @@ export function StrategyStudioPage() {
                       </label>
                       <label className="space-y-2">
                         <span className="text-xs text-nofx-text-muted">
-                          {text(
-                            language,
-                            'Entry confidence',
-                            'Entry confidence'
-                          )}
+                          {text(language, '入场置信度', 'Entry confidence')}
                         </span>
                         <select
                           value={risk.min_confidence}
@@ -2121,7 +2154,7 @@ export function StrategyStudioPage() {
 
                 <div className="mt-4 rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg-lighter p-4">
                   <div className="mb-2 text-sm font-semibold text-nofx-text">
-                    {text(language, 'Strategy note', 'Strategy note')}
+                    {text(language, '策略备注', 'Strategy note')}
                   </div>
                   <textarea
                     value={aiConfig.custom_prompt || ''}
@@ -2130,7 +2163,7 @@ export function StrategyStudioPage() {
                     }
                     placeholder={text(
                       language,
-                      'Example: only trade clean trends; skip entries when board signals conflict with candles.',
+                      '例如：仅交易明确趋势；榜单信号与 K 线冲突时跳过入场。',
                       'Example: only trade clean trends; skip entries when board signals conflict with candles.'
                     )}
                     className="h-28 w-full resize-none rounded-lg border border-[rgba(26,24,19,0.14)] bg-nofx-bg px-3 py-2 text-sm text-nofx-text outline-none placeholder:text-nofx-text-muted/50"
@@ -2146,7 +2179,7 @@ export function StrategyStudioPage() {
                 className="inline-flex items-center gap-2 rounded-lg bg-nofx-gold px-4 py-2 text-sm font-semibold text-nofx-bg hover:bg-nofx-gold-highlight"
               >
                 <Plus className="h-4 w-4" />
-                {text(language, 'Initialize Autopilot', 'Initialize Autopilot')}
+                {text(language, '初始化自动交易', 'Initialize Autopilot')}
               </button>
             </div>
           )}

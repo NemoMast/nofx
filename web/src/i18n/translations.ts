@@ -676,61 +676,21 @@ export const translations = {
 
     // ===== GETTING STARTED =====
 
-
-
-
-
-
     // ===== INSTALLATION =====
-
-
-
-
-
 
     // ===== CONFIGURATION =====
 
-
-
-
-
-
     // ===== TRADING =====
-
-
-
-
-
-
-
 
     // ===== TECHNICAL ISSUES =====
 
-
-
-
-
-
-
-
     // ===== SECURITY =====
-
-
-
 
     // ===== FEATURES =====
 
-
-
     // ===== AI MODELS =====
 
-
-
-
     // ===== CONTRIBUTING =====
-
-
-
 
     // Web Crypto Environment Check
     environmentCheck: {
@@ -1016,8 +976,7 @@ export const translations = {
       positionClosed: 'Position closed successfully',
       closeFailed: 'Failed to close position',
       closeAll: 'Close All',
-      confirmCloseAllPositions:
-        'Market-close ALL {count} open positions?',
+      confirmCloseAllPositions: 'Market-close ALL {count} open positions?',
       allPositionsClosed: 'All positions closed',
       closeAllPartial: '{failed} of {count} positions failed to close',
       hideAddress: 'Hide address',
@@ -1750,8 +1709,8 @@ export const translations = {
 
     // Hero Section
     githubStarsInDays: '3 天内 2.5K+ GitHub Stars',
-    heroTitle1: 'Read the Market.',
-    heroTitle2: 'Write the Trade.',
+    heroTitle1: '读懂市场。',
+    heroTitle2: '制定交易。',
     heroDescription:
       'NOFX 是 AI 交易的未来标准——一个开放、社区驱动的代理式交易操作系统。支持 Binance、Aster DEX 等交易所，自托管、多代理竞争，让 AI 为你自动决策、执行和优化交易。',
     poweredBy: '由 Aster DEX 和 Binance 提供支持。',
@@ -1859,61 +1818,21 @@ export const translations = {
 
     // ===== 入门指南 =====
 
-
-
-
-
-
     // ===== 安装部署 =====
-
-
-
-
-
 
     // ===== 配置设置 =====
 
-
-
-
-
-
     // ===== 交易相关 =====
-
-
-
-
-
-
-
 
     // ===== 技术问题 =====
 
-
-
-
-
-
-
-
     // ===== 安全相关 =====
-
-
-
 
     // ===== 功能介绍 =====
 
-
-
     // ===== AI 模型 =====
 
-
-
-
     // ===== 参与贡献 =====
-
-
-
 
     // Web Crypto Environment Check
     environmentCheck: {
@@ -2035,20 +1954,20 @@ export const translations = {
       myStrategies: '我的库',
       noStrategies: '无信号',
       noStrategiesDesc: '当前频段未检测到策略信号',
-      author: 'OPERATOR',
-      createdAt: 'TIMESTAMP',
-      viewConfig: 'DECRYPT CONFIG',
-      hideConfig: 'ENCRYPT',
-      copyConfig: 'CLONE CONFIG',
-      copied: 'COPIED',
-      configHidden: 'ENCRYPTED',
+      author: '作者',
+      createdAt: '创建时间',
+      viewConfig: '查看配置',
+      hideConfig: '隐藏配置',
+      copyConfig: '复制配置',
+      copied: '已复制',
+      configHidden: '配置已隐藏',
       configHiddenDesc: '配置参数已加密',
-      indicators: 'INDICATORS',
-      maxPositions: 'POS_LIMIT',
-      maxLeverage: 'LEV_MAX',
-      shareYours: 'UPLOAD_STRATEGY',
-      makePublic: 'PUBLISH',
-      loading: 'INITIALIZING...',
+      indicators: '技术指标',
+      maxPositions: '持仓上限',
+      maxLeverage: '杠杆上限',
+      shareYours: '分享策略',
+      makePublic: '发布',
+      loading: '正在初始化…',
     },
 
     // Strategy Studio Page
@@ -2075,8 +1994,8 @@ export const translations = {
       default: '默认',
       promptPreview: 'Prompt 预览',
       aiTestRun: 'AI 测试',
-      systemPrompt: 'System Prompt',
-      userPrompt: 'User Prompt',
+      systemPrompt: '系统提示词',
+      userPrompt: '用户提示词',
       loadPrompt: '生成 Prompt',
       refreshPrompt: '刷新',
       promptVariant: '风格',
@@ -3377,7 +3296,8 @@ export const translations = {
       otherApiEntry: 'Penyedia API Lain',
       otherApiEntryDesc:
         'Gunakan API key Anda sendiri untuk OpenAI, Claude, Gemini, DeepSeek, dan lainnya.',
-      payPerCall: 'Bayar sesuai pemakaian USDC · Semua Model AI · Tanpa API Key',
+      payPerCall:
+        'Bayar sesuai pemakaian USDC · Semua Model AI · Tanpa API Key',
       recommended: 'Terbaik',
       allModelsClaw:
         'Bayar per panggilan dengan USDC — mendukung semua model AI utama',

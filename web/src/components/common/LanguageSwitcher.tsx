@@ -3,22 +3,37 @@ import { useLanguage } from '../../contexts/LanguageContext'
 import type { Language } from '../../i18n/translations'
 
 const languages: { code: Language; label: string }[] = [
-  { code: 'zh', label: 'Chinese' },
+  { code: 'zh', label: '中文' },
   { code: 'en', label: 'EN' },
-  { code: 'id', label: 'ID' },
 ]
 
-export function LanguageSwitcher() {
-  const { language, setLanguage } = useLanguage()
-
+export function LanguageToggle({
+  language,
+  onChange,
+  className = '',
+}: {
+  language: Language
+  onChange: (language: Language) => void
+  className?: string
+}) {
   return (
-    <div className="absolute top-4 right-4 z-50 flex items-center gap-1 rounded-lg p-1 border border-[rgba(26,24,19,0.14)] bg-nofx-bg-lighter backdrop-blur-sm">
-      <Globe size={14} className="text-nofx-text-muted ml-1.5 mr-0.5" />
+    <div
+      role="group"
+      aria-label={language === 'zh' ? '界面语言' : 'Interface language'}
+      className={`flex shrink-0 items-center gap-1 rounded-md p-1 border border-[rgba(26,24,19,0.14)] bg-nofx-bg-lighter ${className}`}
+    >
+      <Globe
+        size={14}
+        aria-hidden="true"
+        className="text-nofx-text-muted ml-1.5 mr-0.5"
+      />
       {languages.map(({ code, label }) => (
         <button
           key={code}
           type="button"
-          onClick={() => setLanguage(code)}
+          onClick={() => onChange(code)}
+          aria-pressed={language === code}
+          lang={code === 'zh' ? 'zh-CN' : 'en'}
           className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${
             language === code
               ? 'bg-nofx-gold/15 text-nofx-gold'
@@ -29,5 +44,16 @@ export function LanguageSwitcher() {
         </button>
       ))}
     </div>
+  )
+}
+
+export function LanguageSwitcher({ inline = false }: { inline?: boolean }) {
+  const { language, setLanguage } = useLanguage()
+  return (
+    <LanguageToggle
+      language={language}
+      onChange={setLanguage}
+      className={inline ? '' : 'absolute top-4 right-4 z-50'}
+    />
   )
 }
